@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { supabase } from '../lib/supabase'
 import type { Page } from '../types'
+import { ClientAccessForm } from './ClientAccessForm'
 
 interface Props {
   page?: Page
@@ -40,10 +41,11 @@ export function PageForm({ page, onSaved, onCancel, onDelete }: Props) {
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="space-y-4 rounded-xl border border-brand-200 bg-white p-4"
-    >
+    <>
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-4 rounded-xl border border-brand-200 bg-white p-4"
+      >
       <div className="space-y-1">
         <label className="text-sm text-neutral-600">Nome cliente</label>
         <input
@@ -105,6 +107,8 @@ export function PageForm({ page, onSaved, onCancel, onDelete }: Props) {
           </button>
         </div>
       </div>
-    </form>
+      </form>
+      {page && page.type !== 'personal' && <ClientAccessForm pageId={page.id} />}
+    </>
   )
 }

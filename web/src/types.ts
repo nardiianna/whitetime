@@ -51,3 +51,55 @@ export interface ContentIdea {
   pillar: string | null
   used: boolean
 }
+
+export type UserRole = 'admin' | 'client'
+
+export interface Profile {
+  id: string
+  role: UserRole
+  page_id: string | null
+}
+
+export type EditorialStatus = 'idea' | 'da_fare' | 'programmato' | 'pubblicato'
+
+export const EDITORIAL_STATUS_LABELS: Record<EditorialStatus, string> = {
+  idea: 'Idea',
+  da_fare: 'Da fare',
+  programmato: 'Programmato',
+  pubblicato: 'Pubblicato',
+}
+
+export interface EditorialPlanItem {
+  id: string
+  page_id: string
+  scheduled_date: string | null
+  status: EditorialStatus
+  social: string[]
+  theme: string | null
+  format: string | null
+  title: string | null
+  caption: string | null
+  image_url: string | null
+  internal_note: string | null
+  client_note: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface AdReport {
+  id: string
+  page_id: string
+  campaign_name: string
+  period_start: string | null
+  period_end: string | null
+  spend: number | null
+  reach: number | null
+  impressions: number | null
+  clicks: number | null
+  results: number | null
+  cost_per_result: number | null
+  screenshot_path: string | null
+  notes: string | null
+  created_at: string
+  updated_at: string
+}

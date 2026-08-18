@@ -66,8 +66,8 @@ scrivere chiavi in chiaro nel codice.
 
 ### 6. Crea il tuo utente di accesso
 
-Dashboard Supabase → **Authentication → Users → Add user** → email + password (solo tu userai l'app,
-niente registrazione pubblica).
+Dashboard Supabase → **Authentication → Users → Add user** → email + password. Dopo il primo
+`supabase db push` questo utente diventa automaticamente admin (vede e gestisce tutto).
 
 ### 7. Configura ed esegui il frontend
 
@@ -90,6 +90,26 @@ Per l'uso da telefono e computer, deploya `web/` su [Vercel](https://vercel.com)
 3. Entro qualche minuto deve arrivare un messaggio Telegram con foto e caption pronta; lo stato
    del post nell'app passa a "Promemoria inviato".
 4. Dopo aver pubblicato manualmente su Instagram, apri l'app e premi "Segna pubblicato".
+
+## Area clienti (Piano Editoriale + Report)
+
+Ogni pagina cliente (tipo `client`, es. Magnetica Design) può avere uno o più accessi cliente
+dedicati, separati dal tuo login admin: chi accede come cliente vede solo la sua pagina, con due
+sezioni — **Piano Editoriale** (contenuti pianificati, con possibilità di lasciare una nota per
+ciascuno) e **Report** (risultati campagne Meta Ads che inserisci tu, in sola lettura per il
+cliente).
+
+Per dare accesso a un cliente:
+
+1. Dashboard Supabase → **Authentication → Users → Add user** → crea email + password per il cliente.
+2. Copia l'**UID** dell'utente appena creato (visibile nella lista utenti).
+3. Nell'app, apri "✎" sulla pagina del cliente (bottone di modifica accanto al suo nome) → nel
+   pannello **Accessi cliente** in fondo al form, incolla l'UID e premi "Collega".
+4. Comunica al cliente le credenziali create al punto 1: al login vedrà solo il suo Piano
+   Editoriale e i suoi Report, mai i dati degli altri clienti.
+
+Per gestire i contenuti del piano e i report di un cliente, selezionalo dai filtri in alto: sotto
+il calendario/elenco comparirà "Piano Editoriale (cliente)" e "Report Meta Ads".
 
 ## Come funziona il reminder
 
