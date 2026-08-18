@@ -49,7 +49,7 @@ export function ClientPortal({ pageId }: Props) {
               tab === 'report' ? 'bg-brand-300 text-neutral-800' : 'text-brand-700'
             }`}
           >
-            Report
+            Dashboard campagne
           </button>
         </div>
 

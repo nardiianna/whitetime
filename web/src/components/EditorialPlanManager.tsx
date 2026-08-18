@@ -54,7 +54,7 @@ export function EditorialPlanManager({ pageId }: Props) {
   return (
     <div className="space-y-3 rounded-xl border border-brand-200 bg-white p-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-brand-600">Piano Editoriale (cliente)</h3>
+        <h3 className="text-sm font-semibold text-brand-600">Piano Editoriale</h3>
         {!showForm && (
           <button
             onClick={openNew}

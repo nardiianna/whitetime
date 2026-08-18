@@ -6,9 +6,6 @@ import { PostList } from './components/PostList'
 import { IdeasBank } from './components/IdeasBank'
 import { PageForm } from './components/PageForm'
 import { CategoryForm } from './components/CategoryForm'
-import { EditorialPlanManager } from './components/EditorialPlanManager'
-import { ReportsManager } from './components/ReportsManager'
-import logo from './assets/logo.png'
 import type { Page, Post, ContentIdea, Category } from './types'
 
 const ALL = 'all'
@@ -228,21 +225,9 @@ function AdminApp() {
 
   const selectedPage = pages.find((p) => p.id === selectedPageId)
   const isPersonalSelected = selectedPage?.type === 'personal'
-  const isClientSelected = selectedPageId !== ALL && !isPersonalSelected
 
   return (
-    <div className="min-h-screen bg-brand-50">
-      <div className="mx-auto max-w-3xl px-4 py-6">
-        <div className="mb-4 flex items-center justify-between">
-          <img src={logo} alt="WhiteTime" className="h-8 w-auto" />
-          <button
-            onClick={() => supabase.auth.signOut()}
-            className="text-sm text-brand-600 hover:underline"
-          >
-            Esci
-          </button>
-        </div>
-
+    <>
         <div className="mb-4 flex flex-wrap gap-2">
           <button
             onClick={() => setSelectedPageId(ALL)}
@@ -454,18 +439,11 @@ function AdminApp() {
         )}
 
         {selectedPageId !== ALL && (
-          <div className="mt-6 space-y-4">
+          <div className="mt-6">
             <IdeasBank pageId={selectedPageId} ideas={ideas} onChanged={loadIdeas} />
-            {isClientSelected && (
-              <>
-                <EditorialPlanManager pageId={selectedPageId} />
-                <ReportsManager pageId={selectedPageId} />
-              </>
-            )}
           </div>
         )}
-      </div>
-    </div>
+    </>
   )
 }
 

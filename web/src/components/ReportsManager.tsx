@@ -50,7 +50,7 @@ export function ReportsManager({ pageId }: Props) {
   return (
     <div className="space-y-3 rounded-xl border border-brand-200 bg-white p-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-brand-600">Report Meta Ads</h3>
+        <h3 className="text-sm font-semibold text-brand-600">Dashboard campagne</h3>
         {!showForm && (
           <button
             onClick={openNew}

@@ -3,7 +3,7 @@ import type { Session } from '@supabase/supabase-js'
 import { supabase } from './lib/supabase'
 import { Login } from './components/Login'
 import { ClientPortal } from './components/ClientPortal'
-import AdminApp from './AdminApp'
+import AdminRoot from './AdminRoot'
 import type { Profile } from './types'
 
 function App() {
@@ -69,7 +69,7 @@ function App() {
     return <ClientPortal pageId={profile.page_id} />
   }
 
-  return <AdminApp />
+  return <AdminRoot />
 }
 
 export default App
