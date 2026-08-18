@@ -192,7 +192,7 @@ export function ClientEditorialPlan({ pageId }: Props) {
                     )}
                   </div>
 
-                  {item.title && <p className="text-lg font-semibold text-neutral-900">{item.title}</p>}
+                  {item.theme && <p className="text-lg font-semibold text-neutral-900">{item.theme}</p>}
                   {item.image_url && (
                     <a href={item.image_url} target="_blank" rel="noreferrer" className="text-sm text-brand-600 underline">
                       Vedi materiale

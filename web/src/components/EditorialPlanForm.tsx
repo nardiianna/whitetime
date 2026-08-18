@@ -28,7 +28,6 @@ export function EditorialPlanForm({ pageId, item, onSaved, onCancel, onDelete }:
   const [social, setSocial] = useState((item?.social ?? []).join(', '))
   const [theme, setTheme] = useState(item?.theme ?? '')
   const [format, setFormat] = useState(item?.format ?? '')
-  const [title, setTitle] = useState(item?.title ?? '')
   const [caption, setCaption] = useState(item?.caption ?? '')
   const [imageUrl, setImageUrl] = useState(item?.image_url ?? '')
   const [existingImagePaths, setExistingImagePaths] = useState(item?.image_paths ?? [])
@@ -80,7 +79,6 @@ export function EditorialPlanForm({ pageId, item, onSaved, onCancel, onDelete }:
           .filter(Boolean),
         theme: theme.trim() || null,
         format: format.trim() || null,
-        title: title.trim() || null,
         caption: caption.trim() || null,
         image_url: imageUrl.trim() || null,
         image_paths: [...existingImagePaths, ...uploadedPaths],
@@ -162,15 +160,6 @@ export function EditorialPlanForm({ pageId, item, onSaved, onCancel, onDelete }:
         <input
           value={theme}
           onChange={(e) => setTheme(e.target.value)}
-          className="w-full rounded-lg border border-brand-200 bg-white px-3 py-2.5 text-sm text-neutral-800 outline-none transition-colors focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
-        />
-      </div>
-
-      <div className="space-y-1">
-        <label className="text-sm font-medium text-neutral-700">Titolo / Argomento</label>
-        <input
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
           className="w-full rounded-lg border border-brand-200 bg-white px-3 py-2.5 text-sm text-neutral-800 outline-none transition-colors focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
         />
       </div>

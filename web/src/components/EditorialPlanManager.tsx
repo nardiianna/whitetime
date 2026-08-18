@@ -130,7 +130,7 @@ export function EditorialPlanManager({ pageId }: Props) {
             )}
           </div>
           <p className="truncate text-sm font-medium text-neutral-900">
-            {item.title || item.theme || '(senza titolo)'}
+            {item.theme || '(senza tema)'}
           </p>
         </div>
         <button

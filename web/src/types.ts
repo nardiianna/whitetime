@@ -77,7 +77,6 @@ export interface EditorialPlanItem {
   social: string[]
   theme: string | null
   format: string | null
-  title: string | null
   caption: string | null
   image_url: string | null
   image_paths: string[]
