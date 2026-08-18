@@ -55,24 +55,6 @@ export function ClientReports({ pageId }: Props) {
                   <p className="font-medium text-neutral-900">€{report.spend}</p>
                 </div>
               )}
-              {report.reach != null && (
-                <div>
-                  <p className="text-xs text-neutral-500">Copertura</p>
-                  <p className="font-medium text-neutral-900">{report.reach}</p>
-                </div>
-              )}
-              {report.impressions != null && (
-                <div>
-                  <p className="text-xs text-neutral-500">Impression</p>
-                  <p className="font-medium text-neutral-900">{report.impressions}</p>
-                </div>
-              )}
-              {report.cost_per_result != null && (
-                <div>
-                  <p className="text-xs text-neutral-500">Costo per risultato</p>
-                  <p className="font-medium text-neutral-900">€{report.cost_per_result}</p>
-                </div>
-              )}
               {report.custom_metrics.map((m) => (
                 <div key={m.label}>
                   <p className="text-xs text-neutral-500">{m.label}</p>

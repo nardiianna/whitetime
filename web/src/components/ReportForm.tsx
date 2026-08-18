@@ -16,6 +16,12 @@ interface MetricInput {
   value: string
 }
 
+const DEFAULT_METRICS: MetricInput[] = [
+  { label: 'Copertura', value: '' },
+  { label: 'Impression', value: '' },
+  { label: 'Costo per risultato (€)', value: '' },
+]
+
 function toNumber(value: string): number | null {
   return value.trim() === '' ? null : Number(value)
 }
@@ -35,11 +41,10 @@ export function ReportForm({ pageId, report, onSaved, onCancel, onDelete }: Prop
   const [periodEnd, setPeriodEnd] = useState(report?.period_end ?? '')
   const [campaignObjective, setCampaignObjective] = useState(report?.campaign_objective ?? '')
   const [spend, setSpend] = useState(report?.spend?.toString() ?? '')
-  const [reach, setReach] = useState(report?.reach?.toString() ?? '')
-  const [impressions, setImpressions] = useState(report?.impressions?.toString() ?? '')
-  const [costPerResult, setCostPerResult] = useState(report?.cost_per_result?.toString() ?? '')
   const [metrics, setMetrics] = useState<MetricInput[]>(
-    (report?.custom_metrics ?? []).map((m) => ({ label: m.label, value: m.value?.toString() ?? '' })),
+    report
+      ? report.custom_metrics.map((m) => ({ label: m.label, value: m.value?.toString() ?? '' }))
+      : DEFAULT_METRICS,
   )
   const [notes, setNotes] = useState(report?.notes ?? '')
   const [existingPath, setExistingPath] = useState(report?.screenshot_path ?? null)
@@ -93,9 +98,6 @@ export function ReportForm({ pageId, report, onSaved, onCancel, onDelete }: Prop
         period_end: periodEnd || null,
         campaign_objective: campaignObjective.trim() || null,
         spend: toNumber(spend),
-        reach: toNumber(reach),
-        impressions: toNumber(impressions),
-        cost_per_result: toNumber(costPerResult),
         custom_metrics: customMetrics,
         notes: notes.trim() || null,
         screenshot_path: screenshotPath,
@@ -175,63 +177,34 @@ export function ReportForm({ pageId, report, onSaved, onCancel, onDelete }: Prop
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-3">
-        <div className="space-y-1">
-          <label className="text-sm text-neutral-600">Copertura</label>
-          <input
-            type="number"
-            value={reach}
-            onChange={(e) => setReach(e.target.value)}
-            className="w-full rounded-md border border-brand-200 bg-white px-3 py-2 text-sm focus:border-brand-400 outline-none"
-          />
-        </div>
-        <div className="space-y-1">
-          <label className="text-sm text-neutral-600">Impression</label>
-          <input
-            type="number"
-            value={impressions}
-            onChange={(e) => setImpressions(e.target.value)}
-            className="w-full rounded-md border border-brand-200 bg-white px-3 py-2 text-sm focus:border-brand-400 outline-none"
-          />
-        </div>
-        <div className="space-y-1">
-          <label className="text-sm text-neutral-600">Costo per risultato (€)</label>
-          <input
-            type="number"
-            step="0.01"
-            value={costPerResult}
-            onChange={(e) => setCostPerResult(e.target.value)}
-            className="w-full rounded-md border border-brand-200 bg-white px-3 py-2 text-sm focus:border-brand-400 outline-none"
-          />
-        </div>
-      </div>
-
       <div className="space-y-2">
-        <label className="text-sm text-neutral-600">Altre metriche (a scelta)</label>
-        {metrics.map((metric, i) => (
-          <div key={i} className="flex gap-2">
-            <input
-              value={metric.label}
-              onChange={(e) => updateMetric(i, 'label', e.target.value)}
-              placeholder="Titolo (es. Messaggi ricevuti)"
-              className="flex-1 rounded-md border border-brand-200 bg-white px-3 py-1.5 text-sm outline-none focus:border-brand-400"
-            />
-            <input
-              type="number"
-              value={metric.value}
-              onChange={(e) => updateMetric(i, 'value', e.target.value)}
-              placeholder="Numero"
-              className="w-28 rounded-md border border-brand-200 bg-white px-3 py-1.5 text-sm outline-none focus:border-brand-400"
-            />
-            <button
-              type="button"
-              onClick={() => removeMetric(i)}
-              className="rounded-md border border-brand-200 px-2 text-sm text-brand-700"
-            >
-              ✕
-            </button>
-          </div>
-        ))}
+        <label className="text-sm text-neutral-600">Metriche</label>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          {metrics.map((metric, i) => (
+            <div key={i} className="relative space-y-1 rounded-md border border-brand-100 p-2">
+              <button
+                type="button"
+                onClick={() => removeMetric(i)}
+                title="Rimuovi metrica"
+                className="absolute right-1 top-1 rounded-full px-1 text-xs text-brand-400 hover:text-brand-700"
+              >
+                ✕
+              </button>
+              <input
+                value={metric.label}
+                onChange={(e) => updateMetric(i, 'label', e.target.value)}
+                placeholder="Titolo"
+                className="w-full border-0 bg-transparent p-0 pr-4 text-sm text-neutral-600 outline-none"
+              />
+              <input
+                type="number"
+                value={metric.value}
+                onChange={(e) => updateMetric(i, 'value', e.target.value)}
+                className="w-full rounded-md border border-brand-200 bg-white px-3 py-2 text-sm focus:border-brand-400 outline-none"
+              />
+            </div>
+          ))}
+        </div>
         <button
           type="button"
           onClick={addMetric}

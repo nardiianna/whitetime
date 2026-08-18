@@ -102,7 +102,6 @@ export function ReportsManager({ pageId }: Props) {
                 <div className="flex flex-wrap gap-2 text-xs text-brand-600">
                   {report.campaign_objective && <span>{report.campaign_objective}</span>}
                   {report.spend != null && <span>Spesa: €{report.spend}</span>}
-                  {report.cost_per_result != null && <span>Costo/risultato: €{report.cost_per_result}</span>}
                   {report.custom_metrics.map((m) => (
                     <span key={m.label}>
                       {m.label}: {m.value}
