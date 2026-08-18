@@ -12,6 +12,15 @@ interface Props {
   onDelete?: () => void
 }
 
+function errorMessage(err: unknown): string {
+  if (err && typeof err === 'object' && 'message' in err) {
+    const message = String((err as { message?: unknown }).message ?? '')
+    const hint = 'hint' in err ? (err as { hint?: unknown }).hint : undefined
+    return hint ? `${message} — ${hint}` : message || 'Errore durante il salvataggio'
+  }
+  return err instanceof Error ? err.message : 'Errore durante il salvataggio'
+}
+
 export function EditorialPlanForm({ pageId, item, onSaved, onCancel, onDelete }: Props) {
   const [scheduledDate, setScheduledDate] = useState(item?.scheduled_date ?? '')
   const [status, setStatus] = useState<EditorialStatus>(item?.status ?? 'idea')
@@ -51,7 +60,8 @@ export function EditorialPlanForm({ pageId, item, onSaved, onCancel, onDelete }:
       if (saveError) throw saveError
       onSaved()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Errore durante il salvataggio')
+      console.error('Failed to save editorial plan item', err)
+      setError(errorMessage(err))
     } finally {
       setSaving(false)
     }

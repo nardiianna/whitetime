@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { supabase } from '../lib/supabase'
-import type { AdReport } from '../types'
+import type { AdReport, CustomMetric } from '../types'
 
 interface Props {
   pageId: string
@@ -11,20 +11,36 @@ interface Props {
   onDelete?: () => void
 }
 
+interface MetricInput {
+  label: string
+  value: string
+}
+
 function toNumber(value: string): number | null {
   return value.trim() === '' ? null : Number(value)
+}
+
+function errorMessage(err: unknown): string {
+  if (err && typeof err === 'object' && 'message' in err) {
+    const message = String((err as { message?: unknown }).message ?? '')
+    const hint = 'hint' in err ? (err as { hint?: unknown }).hint : undefined
+    return hint ? `${message} — ${hint}` : message || 'Errore durante il salvataggio'
+  }
+  return err instanceof Error ? err.message : 'Errore durante il salvataggio'
 }
 
 export function ReportForm({ pageId, report, onSaved, onCancel, onDelete }: Props) {
   const [campaignName, setCampaignName] = useState(report?.campaign_name ?? '')
   const [periodStart, setPeriodStart] = useState(report?.period_start ?? '')
   const [periodEnd, setPeriodEnd] = useState(report?.period_end ?? '')
+  const [campaignObjective, setCampaignObjective] = useState(report?.campaign_objective ?? '')
   const [spend, setSpend] = useState(report?.spend?.toString() ?? '')
   const [reach, setReach] = useState(report?.reach?.toString() ?? '')
   const [impressions, setImpressions] = useState(report?.impressions?.toString() ?? '')
-  const [clicks, setClicks] = useState(report?.clicks?.toString() ?? '')
-  const [results, setResults] = useState(report?.results?.toString() ?? '')
   const [costPerResult, setCostPerResult] = useState(report?.cost_per_result?.toString() ?? '')
+  const [metrics, setMetrics] = useState<MetricInput[]>(
+    (report?.custom_metrics ?? []).map((m) => ({ label: m.label, value: m.value?.toString() ?? '' })),
+  )
   const [notes, setNotes] = useState(report?.notes ?? '')
   const [existingPath, setExistingPath] = useState(report?.screenshot_path ?? null)
   const [removedPath, setRemovedPath] = useState<string | null>(null)
@@ -41,6 +57,18 @@ export function ReportForm({ pageId, report, onSaved, onCancel, onDelete }: Prop
     setExistingPath(null)
   }
 
+  function addMetric() {
+    setMetrics((prev) => [...prev, { label: '', value: '' }])
+  }
+
+  function updateMetric(index: number, field: 'label' | 'value', value: string) {
+    setMetrics((prev) => prev.map((m, i) => (i === index ? { ...m, [field]: value } : m)))
+  }
+
+  function removeMetric(index: number) {
+    setMetrics((prev) => prev.filter((_, i) => i !== index))
+  }
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     setSaving(true)
@@ -54,17 +82,21 @@ export function ReportForm({ pageId, report, onSaved, onCancel, onDelete }: Prop
         screenshotPath = path
       }
 
+      const customMetrics: CustomMetric[] = metrics
+        .filter((m) => m.label.trim())
+        .map((m) => ({ label: m.label.trim(), value: toNumber(m.value) }))
+
       const payload = {
         page_id: pageId,
         campaign_name: campaignName.trim(),
         period_start: periodStart || null,
         period_end: periodEnd || null,
+        campaign_objective: campaignObjective.trim() || null,
         spend: toNumber(spend),
         reach: toNumber(reach),
         impressions: toNumber(impressions),
-        clicks: toNumber(clicks),
-        results: toNumber(results),
         cost_per_result: toNumber(costPerResult),
+        custom_metrics: customMetrics,
         notes: notes.trim() || null,
         screenshot_path: screenshotPath,
       }
@@ -81,7 +113,8 @@ export function ReportForm({ pageId, report, onSaved, onCancel, onDelete }: Prop
 
       onSaved()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Errore durante il salvataggio')
+      console.error('Failed to save report', err)
+      setError(errorMessage(err))
     } finally {
       setSaving(false)
     }
@@ -132,12 +165,11 @@ export function ReportForm({ pageId, report, onSaved, onCancel, onDelete }: Prop
           />
         </div>
         <div className="space-y-1">
-          <label className="text-sm text-neutral-600">Costo per risultato (€)</label>
+          <label className="text-sm text-neutral-600">Obiettivo campagna</label>
           <input
-            type="number"
-            step="0.01"
-            value={costPerResult}
-            onChange={(e) => setCostPerResult(e.target.value)}
+            value={campaignObjective}
+            onChange={(e) => setCampaignObjective(e.target.value)}
+            placeholder="Es. Acquisizione follower"
             className="w-full rounded-md border border-brand-200 bg-white px-3 py-2 text-sm focus:border-brand-400 outline-none"
           />
         </div>
@@ -163,24 +195,50 @@ export function ReportForm({ pageId, report, onSaved, onCancel, onDelete }: Prop
           />
         </div>
         <div className="space-y-1">
-          <label className="text-sm text-neutral-600">Click</label>
+          <label className="text-sm text-neutral-600">Costo per risultato (€)</label>
           <input
             type="number"
-            value={clicks}
-            onChange={(e) => setClicks(e.target.value)}
+            step="0.01"
+            value={costPerResult}
+            onChange={(e) => setCostPerResult(e.target.value)}
             className="w-full rounded-md border border-brand-200 bg-white px-3 py-2 text-sm focus:border-brand-400 outline-none"
           />
         </div>
       </div>
 
-      <div className="space-y-1">
-        <label className="text-sm text-neutral-600">Risultati</label>
-        <input
-          type="number"
-          value={results}
-          onChange={(e) => setResults(e.target.value)}
-          className="w-full rounded-md border border-brand-200 bg-white px-3 py-2 text-sm focus:border-brand-400 outline-none"
-        />
+      <div className="space-y-2">
+        <label className="text-sm text-neutral-600">Altre metriche (a scelta)</label>
+        {metrics.map((metric, i) => (
+          <div key={i} className="flex gap-2">
+            <input
+              value={metric.label}
+              onChange={(e) => updateMetric(i, 'label', e.target.value)}
+              placeholder="Titolo (es. Messaggi ricevuti)"
+              className="flex-1 rounded-md border border-brand-200 bg-white px-3 py-1.5 text-sm outline-none focus:border-brand-400"
+            />
+            <input
+              type="number"
+              value={metric.value}
+              onChange={(e) => updateMetric(i, 'value', e.target.value)}
+              placeholder="Numero"
+              className="w-28 rounded-md border border-brand-200 bg-white px-3 py-1.5 text-sm outline-none focus:border-brand-400"
+            />
+            <button
+              type="button"
+              onClick={() => removeMetric(i)}
+              className="rounded-md border border-brand-200 px-2 text-sm text-brand-700"
+            >
+              ✕
+            </button>
+          </div>
+        ))}
+        <button
+          type="button"
+          onClick={addMetric}
+          className="rounded-full border border-dashed border-brand-300 px-3 py-1 text-xs text-brand-700"
+        >
+          + Aggiungi voce
+        </button>
       </div>
 
       <div className="space-y-1">

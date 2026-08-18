@@ -44,6 +44,9 @@ export function ClientReports({ pageId }: Props) {
                 </span>
               )}
             </div>
+            {report.campaign_objective && (
+              <p className="text-sm text-brand-600">Obiettivo: {report.campaign_objective}</p>
+            )}
 
             <div className="grid grid-cols-2 gap-2 text-sm sm:grid-cols-3">
               {report.spend != null && (
@@ -64,24 +67,18 @@ export function ClientReports({ pageId }: Props) {
                   <p className="font-medium text-neutral-900">{report.impressions}</p>
                 </div>
               )}
-              {report.clicks != null && (
-                <div>
-                  <p className="text-xs text-neutral-500">Click</p>
-                  <p className="font-medium text-neutral-900">{report.clicks}</p>
-                </div>
-              )}
-              {report.results != null && (
-                <div>
-                  <p className="text-xs text-neutral-500">Risultati</p>
-                  <p className="font-medium text-neutral-900">{report.results}</p>
-                </div>
-              )}
               {report.cost_per_result != null && (
                 <div>
                   <p className="text-xs text-neutral-500">Costo per risultato</p>
                   <p className="font-medium text-neutral-900">€{report.cost_per_result}</p>
                 </div>
               )}
+              {report.custom_metrics.map((m) => (
+                <div key={m.label}>
+                  <p className="text-xs text-neutral-500">{m.label}</p>
+                  <p className="font-medium text-neutral-900">{m.value}</p>
+                </div>
+              ))}
             </div>
 
             {screenshotUrl && <img src={screenshotUrl} alt="" className="max-h-64 w-auto rounded-md" />}

@@ -86,18 +86,23 @@ export interface EditorialPlanItem {
   updated_at: string
 }
 
+export interface CustomMetric {
+  label: string
+  value: number | null
+}
+
 export interface AdReport {
   id: string
   page_id: string
   campaign_name: string
   period_start: string | null
   period_end: string | null
+  campaign_objective: string | null
   spend: number | null
   reach: number | null
   impressions: number | null
-  clicks: number | null
-  results: number | null
   cost_per_result: number | null
+  custom_metrics: CustomMetric[]
   screenshot_path: string | null
   notes: string | null
   created_at: string
