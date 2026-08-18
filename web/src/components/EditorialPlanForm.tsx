@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
-import { Calendar } from 'lucide-react'
+import { Calendar, ImageUp, X } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { EDITORIAL_STATUS_LABELS } from '../types'
 import type { EditorialPlanItem, EditorialStatus } from '../types'
@@ -31,15 +31,35 @@ export function EditorialPlanForm({ pageId, item, onSaved, onCancel, onDelete }:
   const [title, setTitle] = useState(item?.title ?? '')
   const [caption, setCaption] = useState(item?.caption ?? '')
   const [imageUrl, setImageUrl] = useState(item?.image_url ?? '')
+  const [existingImagePath, setExistingImagePath] = useState(item?.image_path ?? null)
+  const [removedImagePath, setRemovedImagePath] = useState<string | null>(null)
+  const [newImageFile, setNewImageFile] = useState<File | null>(null)
   const [internalNote, setInternalNote] = useState(item?.internal_note ?? '')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  const existingImageUrl = existingImagePath
+    ? supabase.storage.from('media').getPublicUrl(existingImagePath).data.publicUrl
+    : null
+
+  function removeExistingImage() {
+    if (existingImagePath) setRemovedImagePath(existingImagePath)
+    setExistingImagePath(null)
+  }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     setSaving(true)
     setError(null)
     try {
+      let imagePath = existingImagePath
+      if (newImageFile) {
+        const path = `${pageId}/editorial/${crypto.randomUUID()}-${newImageFile.name}`
+        const { error: uploadError } = await supabase.storage.from('media').upload(path, newImageFile)
+        if (uploadError) throw uploadError
+        imagePath = path
+      }
+
       const payload = {
         page_id: pageId,
         scheduled_date: scheduledDate || null,
@@ -53,12 +73,19 @@ export function EditorialPlanForm({ pageId, item, onSaved, onCancel, onDelete }:
         title: title.trim() || null,
         caption: caption.trim() || null,
         image_url: imageUrl.trim() || null,
+        image_path: imagePath,
         internal_note: internalNote.trim() || null,
       }
       const { error: saveError } = item
         ? await supabase.from('editorial_plan_items').update(payload).eq('id', item.id)
         : await supabase.from('editorial_plan_items').insert(payload)
       if (saveError) throw saveError
+
+      if (removedImagePath) {
+        const { error: removeError } = await supabase.storage.from('media').remove([removedImagePath])
+        if (removeError) console.error('Failed to delete removed image', removeError)
+      }
+
       onSaved()
     } catch (err) {
       console.error('Failed to save editorial plan item', err)
@@ -148,8 +175,39 @@ export function EditorialPlanForm({ pageId, item, onSaved, onCancel, onDelete }:
         />
       </div>
 
+      <div className="space-y-1.5">
+        <label className="text-sm font-medium text-neutral-700">Immagine</label>
+        {existingImageUrl && (
+          <div className="relative w-fit">
+            <img src={existingImageUrl} alt="" className="h-40 w-auto rounded-lg object-cover" />
+            <button
+              type="button"
+              onClick={removeExistingImage}
+              className="absolute -right-2 -top-2 rounded-full bg-brand-700 p-1 text-white shadow-sm"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          </div>
+        )}
+        {!existingImageUrl && newImageFile && (
+          <img src={URL.createObjectURL(newImageFile)} alt="" className="h-40 w-auto rounded-lg object-cover" />
+        )}
+        {!existingImageUrl && (
+          <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-brand-300 bg-brand-50/40 px-3 py-2.5 text-sm text-brand-600 hover:bg-brand-50">
+            <ImageUp className="h-4 w-4" />
+            Carica immagine
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => setNewImageFile(e.target.files?.[0] ?? null)}
+              className="hidden"
+            />
+          </label>
+        )}
+      </div>
+
       <div className="space-y-1">
-        <label className="text-sm font-medium text-neutral-700">URL immagine (Drive o link diretto)</label>
+        <label className="text-sm font-medium text-neutral-700">Link esterno (opzionale, es. cartella Drive)</label>
         <input
           value={imageUrl}
           onChange={(e) => setImageUrl(e.target.value)}
@@ -168,10 +226,17 @@ export function EditorialPlanForm({ pageId, item, onSaved, onCancel, onDelete }:
         />
       </div>
 
-      {item?.client_note && (
-        <div className="space-y-1 rounded-lg bg-brand-50 p-3">
-          <p className="text-xs font-semibold text-brand-600">Nota del cliente</p>
-          <p className="text-sm text-neutral-800">{item.client_note}</p>
+      {item && (item.approved || item.client_note) && (
+        <div className="space-y-2 rounded-lg bg-brand-50 p-3">
+          {item.approved && (
+            <p className="text-sm font-semibold text-green-700">✓ Approvato dal cliente</p>
+          )}
+          {item.client_note && (
+            <div>
+              <p className="text-xs font-semibold text-brand-600">Nota del cliente</p>
+              <p className="text-sm text-neutral-800">{item.client_note}</p>
+            </div>
+          )}
         </div>
       )}
 

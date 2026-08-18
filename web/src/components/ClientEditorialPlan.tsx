@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { EDITORIAL_STATUS_LABELS } from '../types'
 import type { EditorialPlanItem } from '../types'
+import { addMonths, getMonthStart, isInMonth, monthLabel } from '../lib/date'
 
 interface Props {
   pageId: string
@@ -14,16 +16,24 @@ const STATUS_STYLES: Record<string, string> = {
   pubblicato: 'bg-brand-400 text-white font-medium',
 }
 
-function NoteEditor({ item, onSaved }: { item: EditorialPlanItem; onSaved: () => void }) {
+function ApprovalAndNote({ item, onSaved }: { item: EditorialPlanItem; onSaved: () => void }) {
   const [note, setNote] = useState(item.client_note ?? '')
-  const [saving, setSaving] = useState(false)
+  const [approved, setApproved] = useState(item.approved)
+  const [savingNote, setSavingNote] = useState(false)
   const [saved, setSaved] = useState(false)
 
-  async function handleSave() {
-    setSaving(true)
+  async function toggleApproved() {
+    const next = !approved
+    setApproved(next)
+    await supabase.rpc('submit_client_approval', { p_item_id: item.id, p_approved: next })
+    onSaved()
+  }
+
+  async function handleSaveNote() {
+    setSavingNote(true)
     setSaved(false)
     const { error } = await supabase.rpc('submit_client_note', { p_item_id: item.id, p_note: note.trim() || null })
-    setSaving(false)
+    setSavingNote(false)
     if (!error) {
       setSaved(true)
       onSaved()
@@ -31,27 +41,47 @@ function NoteEditor({ item, onSaved }: { item: EditorialPlanItem; onSaved: () =>
   }
 
   return (
-    <div className="space-y-1">
-      <label className="text-xs text-neutral-500">La tua nota</label>
-      <textarea
-        value={note}
-        onChange={(e) => {
-          setNote(e.target.value)
-          setSaved(false)
-        }}
-        rows={2}
-        placeholder="Scrivi qui un commento o una richiesta per questo contenuto…"
-        className="w-full rounded-lg border border-brand-200 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
-      />
-      <div className="flex items-center gap-2">
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="rounded-lg bg-brand-500 px-3 py-1.5 text-xs font-medium text-white shadow-sm shadow-brand-300/60 hover:bg-brand-600 disabled:opacity-50"
+    <div className="space-y-3 border-t border-brand-100 pt-3">
+      <button
+        onClick={toggleApproved}
+        className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
+          approved
+            ? 'border-green-200 bg-green-50 text-green-700'
+            : 'border-brand-200 bg-white text-neutral-600 hover:bg-brand-50'
+        }`}
+      >
+        <span
+          className={`flex h-5 w-5 items-center justify-center rounded-full border ${
+            approved ? 'border-green-500 bg-green-500 text-white' : 'border-neutral-300'
+          }`}
         >
-          {saving ? 'Salvataggio…' : 'Salva nota'}
-        </button>
-        {saved && <span className="text-xs font-medium text-brand-600">Salvata ✓</span>}
+          {approved && '✓'}
+        </span>
+        {approved ? 'Approvato' : 'Approvo questo contenuto'}
+      </button>
+
+      <div className="space-y-1">
+        <label className="text-xs font-medium text-neutral-500">Vuoi chiedere una modifica? Scrivi qui</label>
+        <textarea
+          value={note}
+          onChange={(e) => {
+            setNote(e.target.value)
+            setSaved(false)
+          }}
+          rows={2}
+          placeholder="Scrivi qui un commento o una richiesta per questo contenuto…"
+          className="w-full rounded-lg border border-brand-200 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
+        />
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleSaveNote}
+            disabled={savingNote}
+            className="rounded-lg bg-brand-500 px-3 py-1.5 text-xs font-medium text-white shadow-sm shadow-brand-300/60 hover:bg-brand-600 disabled:opacity-50"
+          >
+            {savingNote ? 'Salvataggio…' : 'Salva nota'}
+          </button>
+          {saved && <span className="text-xs font-medium text-brand-600">Salvata ✓</span>}
+        </div>
       </div>
     </div>
   )
@@ -60,6 +90,7 @@ function NoteEditor({ item, onSaved }: { item: EditorialPlanItem; onSaved: () =>
 export function ClientEditorialPlan({ pageId }: Props) {
   const [items, setItems] = useState<EditorialPlanItem[]>([])
   const [loading, setLoading] = useState(true)
+  const [monthStart, setMonthStart] = useState(() => getMonthStart(new Date()))
 
   async function loadItems() {
     const { data } = await supabase
@@ -78,48 +109,86 @@ export function ClientEditorialPlan({ pageId }: Props) {
 
   if (loading) return null
 
-  if (items.length === 0) {
-    return <p className="py-8 text-center text-sm text-neutral-500">Nessun contenuto pianificato al momento.</p>
-  }
+  const monthItems = items.filter((i) => i.scheduled_date && isInMonth(i.scheduled_date, monthStart))
 
   return (
-    <ul className="space-y-3">
-      {items.map((item) => (
-        <li key={item.id} className="space-y-3 rounded-2xl border border-brand-100 bg-white p-5 shadow-sm shadow-brand-100/50">
-          <div className="flex flex-wrap items-center gap-2">
-            {item.scheduled_date && (
-              <span className="text-sm text-neutral-600">
-                {new Date(item.scheduled_date).toLocaleDateString('it-IT', {
-                  weekday: 'long',
-                  day: '2-digit',
-                  month: '2-digit',
-                })}
-              </span>
-            )}
-            <span className={`rounded-full px-2 py-0.5 text-xs ${STATUS_STYLES[item.status]}`}>
-              {EDITORIAL_STATUS_LABELS[item.status]}
-            </span>
-            {item.social.map((s) => (
-              <span key={s} className="rounded-full bg-brand-50 px-2 py-0.5 text-xs text-brand-600">
-                {s}
-              </span>
-            ))}
-            {item.format && (
-              <span className="rounded-full bg-brand-50 px-2 py-0.5 text-xs text-brand-600">{item.format}</span>
-            )}
-          </div>
+    <div className="space-y-4">
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setMonthStart((m) => addMonths(m, -1))}
+            className="rounded-lg border border-brand-200 bg-white p-1.5 text-brand-700 hover:bg-brand-50"
+            aria-label="Mese precedente"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          <span className="text-sm font-medium text-neutral-800">{monthLabel(monthStart)}</span>
+          <button
+            onClick={() => setMonthStart((m) => addMonths(m, 1))}
+            className="rounded-lg border border-brand-200 bg-white p-1.5 text-brand-700 hover:bg-brand-50"
+            aria-label="Mese successivo"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        </div>
+        <button
+          onClick={() => setMonthStart(getMonthStart(new Date()))}
+          className="rounded-full border border-brand-200 bg-white px-3 py-1 text-xs font-medium text-brand-700 hover:bg-brand-50"
+        >
+          Mese corrente
+        </button>
+      </div>
 
-          {item.title && <p className="font-semibold text-neutral-900">{item.title}</p>}
-          {item.image_url && (
-            <a href={item.image_url} target="_blank" rel="noreferrer" className="text-sm text-brand-600 underline">
-              Vedi immagine/materiale
-            </a>
-          )}
-          {item.caption && <p className="whitespace-pre-wrap text-sm text-neutral-700">{item.caption}</p>}
+      {monthItems.length === 0 ? (
+        <p className="py-8 text-center text-sm text-neutral-500">Nessun contenuto pianificato per questo mese.</p>
+      ) : (
+        <ul className="space-y-4">
+          {monthItems.map((item) => {
+            const imageUrl = item.image_path
+              ? supabase.storage.from('media').getPublicUrl(item.image_path).data.publicUrl
+              : null
+            return (
+              <li key={item.id} className="overflow-hidden rounded-2xl border border-brand-100 bg-white shadow-sm shadow-brand-100/50">
+                {imageUrl && <img src={imageUrl} alt="" className="h-64 w-full object-cover sm:h-80" />}
+                <div className="space-y-3 p-5">
+                  <div className="flex flex-wrap items-center gap-2">
+                    {item.scheduled_date && (
+                      <span className="text-sm text-neutral-600">
+                        {new Date(item.scheduled_date).toLocaleDateString('it-IT', {
+                          weekday: 'long',
+                          day: '2-digit',
+                          month: '2-digit',
+                        })}
+                      </span>
+                    )}
+                    <span className={`rounded-full px-2 py-0.5 text-xs ${STATUS_STYLES[item.status]}`}>
+                      {EDITORIAL_STATUS_LABELS[item.status]}
+                    </span>
+                    {item.social.map((s) => (
+                      <span key={s} className="rounded-full bg-brand-50 px-2 py-0.5 text-xs text-brand-600">
+                        {s}
+                      </span>
+                    ))}
+                    {item.format && (
+                      <span className="rounded-full bg-brand-50 px-2 py-0.5 text-xs text-brand-600">{item.format}</span>
+                    )}
+                  </div>
 
-          <NoteEditor item={item} onSaved={loadItems} />
-        </li>
-      ))}
-    </ul>
+                  {item.title && <p className="text-lg font-semibold text-neutral-900">{item.title}</p>}
+                  {item.image_url && (
+                    <a href={item.image_url} target="_blank" rel="noreferrer" className="text-sm text-brand-600 underline">
+                      Vedi materiale
+                    </a>
+                  )}
+                  {item.caption && <p className="whitespace-pre-wrap text-base text-neutral-700">{item.caption}</p>}
+
+                  <ApprovalAndNote item={item} onSaved={loadItems} />
+                </div>
+              </li>
+            )
+          })}
+        </ul>
+      )}
+    </div>
   )
 }
