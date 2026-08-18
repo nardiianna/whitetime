@@ -65,9 +65,9 @@ export function EditorialPlanManager({ pageId }: Props) {
 
   async function handleDelete(item: EditorialPlanItem) {
     if (!confirm('Eliminare questo contenuto dal piano editoriale?')) return
-    if (item.image_path) {
-      const { error } = await supabase.storage.from('media').remove([item.image_path])
-      if (error) console.error('Failed to delete image', error)
+    if (item.image_paths.length > 0) {
+      const { error } = await supabase.storage.from('media').remove(item.image_paths)
+      if (error) console.error('Failed to delete images', error)
     }
     await supabase.from('editorial_plan_items').delete().eq('id', item.id)
     setShowForm(false)
@@ -81,14 +81,24 @@ export function EditorialPlanManager({ pageId }: Props) {
   const unscheduled = items.filter((i) => !i.scheduled_date && matchesClientFilter(i, clientFilter))
 
   function renderRow(item: EditorialPlanItem) {
-    const imageUrl = item.image_path ? supabase.storage.from('media').getPublicUrl(item.image_path).data.publicUrl : null
+    const imageUrl =
+      item.image_paths.length > 0 ? supabase.storage.from('media').getPublicUrl(item.image_paths[0]).data.publicUrl : null
     return (
       <li
         key={item.id}
         onClick={() => openEdit(item)}
         className="flex cursor-pointer flex-col gap-3 rounded-xl border border-brand-100 p-3 transition-colors hover:border-brand-300 hover:bg-brand-50/40 sm:flex-row sm:items-center"
       >
-        {imageUrl && <img src={imageUrl} alt="" className="h-16 w-16 shrink-0 rounded-lg object-cover" />}
+        {imageUrl && (
+          <div className="relative shrink-0">
+            <img src={imageUrl} alt="" className="h-16 w-16 rounded-lg object-cover" />
+            {item.image_paths.length > 1 && (
+              <span className="absolute -right-1.5 -top-1.5 rounded-full bg-brand-700 px-1.5 text-[10px] font-medium text-white">
+                {item.image_paths.length}
+              </span>
+            )}
+          </div>
+        )}
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             {item.scheduled_date && (

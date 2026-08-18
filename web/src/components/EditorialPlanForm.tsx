@@ -31,20 +31,30 @@ export function EditorialPlanForm({ pageId, item, onSaved, onCancel, onDelete }:
   const [title, setTitle] = useState(item?.title ?? '')
   const [caption, setCaption] = useState(item?.caption ?? '')
   const [imageUrl, setImageUrl] = useState(item?.image_url ?? '')
-  const [existingImagePath, setExistingImagePath] = useState(item?.image_path ?? null)
-  const [removedImagePath, setRemovedImagePath] = useState<string | null>(null)
-  const [newImageFile, setNewImageFile] = useState<File | null>(null)
+  const [existingImagePaths, setExistingImagePaths] = useState(item?.image_paths ?? [])
+  const [removedImagePaths, setRemovedImagePaths] = useState<string[]>([])
+  const [newImageFiles, setNewImageFiles] = useState<File[]>([])
   const [internalNote, setInternalNote] = useState(item?.internal_note ?? '')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const existingImageUrl = existingImagePath
-    ? supabase.storage.from('media').getPublicUrl(existingImagePath).data.publicUrl
-    : null
+  const existingImageUrls = existingImagePaths.map((path) => ({
+    path,
+    url: supabase.storage.from('media').getPublicUrl(path).data.publicUrl,
+  }))
 
-  function removeExistingImage() {
-    if (existingImagePath) setRemovedImagePath(existingImagePath)
-    setExistingImagePath(null)
+  function addImageFiles(fileList: FileList | null) {
+    if (!fileList) return
+    setNewImageFiles((prev) => [...prev, ...Array.from(fileList)])
+  }
+
+  function removeExistingImage(path: string) {
+    setExistingImagePaths((prev) => prev.filter((p) => p !== path))
+    setRemovedImagePaths((prev) => [...prev, path])
+  }
+
+  function removeNewImageFile(index: number) {
+    setNewImageFiles((prev) => prev.filter((_, i) => i !== index))
   }
 
   async function handleSubmit(e: FormEvent) {
@@ -52,12 +62,12 @@ export function EditorialPlanForm({ pageId, item, onSaved, onCancel, onDelete }:
     setSaving(true)
     setError(null)
     try {
-      let imagePath = existingImagePath
-      if (newImageFile) {
-        const path = `${pageId}/editorial/${crypto.randomUUID()}-${newImageFile.name}`
-        const { error: uploadError } = await supabase.storage.from('media').upload(path, newImageFile)
+      const uploadedPaths: string[] = []
+      for (const file of newImageFiles) {
+        const path = `${pageId}/editorial/${crypto.randomUUID()}-${file.name}`
+        const { error: uploadError } = await supabase.storage.from('media').upload(path, file)
         if (uploadError) throw uploadError
-        imagePath = path
+        uploadedPaths.push(path)
       }
 
       const payload = {
@@ -73,7 +83,7 @@ export function EditorialPlanForm({ pageId, item, onSaved, onCancel, onDelete }:
         title: title.trim() || null,
         caption: caption.trim() || null,
         image_url: imageUrl.trim() || null,
-        image_path: imagePath,
+        image_paths: [...existingImagePaths, ...uploadedPaths],
         internal_note: internalNote.trim() || null,
       }
       const { error: saveError } = item
@@ -81,9 +91,9 @@ export function EditorialPlanForm({ pageId, item, onSaved, onCancel, onDelete }:
         : await supabase.from('editorial_plan_items').insert(payload)
       if (saveError) throw saveError
 
-      if (removedImagePath) {
-        const { error: removeError } = await supabase.storage.from('media').remove([removedImagePath])
-        if (removeError) console.error('Failed to delete removed image', removeError)
+      if (removedImagePaths.length > 0) {
+        const { error: removeError } = await supabase.storage.from('media').remove(removedImagePaths)
+        if (removeError) console.error('Failed to delete removed images', removeError)
       }
 
       onSaved()
@@ -176,34 +186,49 @@ export function EditorialPlanForm({ pageId, item, onSaved, onCancel, onDelete }:
       </div>
 
       <div className="space-y-1.5">
-        <label className="text-sm font-medium text-neutral-700">Immagine</label>
-        {existingImageUrl && (
-          <div className="relative w-fit">
-            <img src={existingImageUrl} alt="" className="h-40 w-auto rounded-lg object-cover" />
-            <button
-              type="button"
-              onClick={removeExistingImage}
-              className="absolute -right-2 -top-2 rounded-full bg-brand-700 p-1 text-white shadow-sm"
-            >
-              <X className="h-3 w-3" />
-            </button>
+        <label className="text-sm font-medium text-neutral-700">Immagini (una o più, es. carosello)</label>
+        {(existingImageUrls.length > 0 || newImageFiles.length > 0) && (
+          <div className="flex flex-wrap gap-2">
+            {existingImageUrls.map(({ path, url }) => (
+              <div key={path} className="relative">
+                <img src={url} alt="" className="h-24 w-24 rounded-lg object-cover" />
+                <button
+                  type="button"
+                  onClick={() => removeExistingImage(path)}
+                  className="absolute -right-2 -top-2 rounded-full bg-brand-700 p-1 text-white shadow-sm"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </div>
+            ))}
+            {newImageFiles.map((f, i) => (
+              <div key={`${f.name}-${i}`} className="relative">
+                <img src={URL.createObjectURL(f)} alt="" className="h-24 w-24 rounded-lg object-cover" />
+                <button
+                  type="button"
+                  onClick={() => removeNewImageFile(i)}
+                  className="absolute -right-2 -top-2 rounded-full bg-brand-700 p-1 text-white shadow-sm"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </div>
+            ))}
           </div>
         )}
-        {!existingImageUrl && newImageFile && (
-          <img src={URL.createObjectURL(newImageFile)} alt="" className="h-40 w-auto rounded-lg object-cover" />
-        )}
-        {!existingImageUrl && (
-          <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-brand-300 bg-brand-50/40 px-3 py-2.5 text-sm text-brand-600 hover:bg-brand-50">
-            <ImageUp className="h-4 w-4" />
-            Carica immagine
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => setNewImageFile(e.target.files?.[0] ?? null)}
-              className="hidden"
-            />
-          </label>
-        )}
+        <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-brand-300 bg-brand-50/40 px-3 py-2.5 text-sm text-brand-600 hover:bg-brand-50">
+          <ImageUp className="h-4 w-4" />
+          Carica immagini
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={(e) => {
+              addImageFiles(e.target.files)
+              e.target.value = ''
+            }}
+            className="hidden"
+          />
+        </label>
       </div>
 
       <div className="space-y-1">

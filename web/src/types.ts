@@ -80,7 +80,7 @@ export interface EditorialPlanItem {
   title: string | null
   caption: string | null
   image_url: string | null
-  image_path: string | null
+  image_paths: string[]
   internal_note: string | null
   client_note: string | null
   approved: boolean

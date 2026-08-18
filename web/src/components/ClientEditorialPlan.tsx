@@ -144,12 +144,30 @@ export function ClientEditorialPlan({ pageId }: Props) {
       ) : (
         <ul className="space-y-4">
           {monthItems.map((item) => {
-            const imageUrl = item.image_path
-              ? supabase.storage.from('media').getPublicUrl(item.image_path).data.publicUrl
-              : null
+            const imageUrls = item.image_paths.map(
+              (path) => supabase.storage.from('media').getPublicUrl(path).data.publicUrl,
+            )
             return (
               <li key={item.id} className="overflow-hidden rounded-2xl border border-brand-100 bg-white shadow-sm shadow-brand-100/50">
-                {imageUrl && <img src={imageUrl} alt="" className="h-64 w-full object-cover sm:h-80" />}
+                {imageUrls.length > 0 && (
+                  <div className="relative">
+                    <div className="flex snap-x snap-mandatory overflow-x-auto">
+                      {imageUrls.map((url, i) => (
+                        <img
+                          key={i}
+                          src={url}
+                          alt=""
+                          className="h-64 w-full shrink-0 snap-center object-cover sm:h-80"
+                        />
+                      ))}
+                    </div>
+                    {imageUrls.length > 1 && (
+                      <span className="absolute right-3 top-3 rounded-full bg-black/60 px-2 py-0.5 text-xs font-medium text-white">
+                        {imageUrls.length} foto
+                      </span>
+                    )}
+                  </div>
+                )}
                 <div className="space-y-3 p-5">
                   <div className="flex flex-wrap items-center gap-2">
                     {item.scheduled_date && (
