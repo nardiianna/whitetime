@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { BarChart3, Plus } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import type { AdReport } from '../types'
 import { ReportForm } from './ReportForm'
@@ -48,15 +49,21 @@ export function ReportsManager({ pageId }: Props) {
   }
 
   return (
-    <div className="space-y-3 rounded-xl border border-brand-200 bg-white p-4">
+    <div className="space-y-4 rounded-2xl border border-brand-100 bg-white p-5 shadow-sm shadow-brand-100/50">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-brand-600">Dashboard campagne</h3>
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-50 text-brand-600">
+            <BarChart3 className="h-5 w-5" />
+          </div>
+          <h3 className="text-base font-semibold text-brand-600">Dashboard campagne</h3>
+        </div>
         {!showForm && (
           <button
             onClick={openNew}
-            className="rounded-full border border-dashed border-brand-300 px-3 py-1 text-xs text-brand-700"
+            className="flex items-center gap-1.5 rounded-full border border-dashed border-brand-300 px-3 py-1.5 text-xs font-medium text-brand-700 hover:bg-brand-50"
           >
-            + Nuovo report
+            <Plus className="h-3.5 w-3.5" />
+            Nuovo report
           </button>
         )}
       </div>
@@ -88,7 +95,7 @@ export function ReportsManager({ pageId }: Props) {
             <li
               key={report.id}
               onClick={() => openEdit(report)}
-              className="flex cursor-pointer flex-col gap-2 rounded-lg border border-brand-100 p-3 hover:border-brand-300 sm:flex-row sm:items-center"
+              className="flex cursor-pointer flex-col gap-2 rounded-xl border border-brand-100 p-3 transition-colors hover:border-brand-300 hover:bg-brand-50/40 sm:flex-row sm:items-center"
             >
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
@@ -114,7 +121,7 @@ export function ReportsManager({ pageId }: Props) {
                   e.stopPropagation()
                   handleDelete(report)
                 }}
-                className="self-start rounded-md border border-brand-300 px-2 py-1 text-xs text-brand-800 sm:self-center"
+                className="self-start rounded-full border border-brand-200 px-3 py-1 text-xs font-medium text-brand-700 hover:bg-brand-50 sm:self-center"
               >
                 Elimina
               </button>

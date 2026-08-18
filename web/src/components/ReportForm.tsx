@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
+import { Calendar, Euro, ImageUp, X } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import type { AdReport, CustomMetric } from '../types'
 
@@ -21,6 +22,10 @@ const DEFAULT_METRICS: MetricInput[] = [
   { label: 'Impression', value: '' },
   { label: 'Costo per risultato (€)', value: '' },
 ]
+
+const INPUT =
+  'w-full rounded-lg border border-brand-200 bg-white px-3 py-2.5 text-sm text-neutral-800 outline-none transition-colors focus:border-brand-400 focus:ring-2 focus:ring-brand-100'
+const LABEL = 'text-sm font-medium text-neutral-700'
 
 function toNumber(value: string): number | null {
   return value.trim() === '' ? null : Number(value)
@@ -123,84 +128,96 @@ export function ReportForm({ pageId, report, onSaved, onCancel, onDelete }: Prop
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 rounded-xl border border-brand-200 bg-white p-4">
-      <div className="space-y-1">
-        <label className="text-sm text-neutral-600">Nome campagna</label>
+    <form onSubmit={handleSubmit} className="space-y-5 rounded-2xl border border-brand-100 bg-white p-5 shadow-sm shadow-brand-100/50">
+      <div className="space-y-1.5">
+        <label className={LABEL}>Nome campagna</label>
         <input
           required
           value={campaignName}
           onChange={(e) => setCampaignName(e.target.value)}
-          className="w-full rounded-md border border-brand-200 bg-white px-3 py-2 text-sm focus:border-brand-400 outline-none"
+          placeholder="Inserisci il nome della campagna"
+          className={INPUT}
         />
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        <div className="space-y-1">
-          <label className="text-sm text-neutral-600">Dal</label>
-          <input
-            type="date"
-            value={periodStart}
-            onChange={(e) => setPeriodStart(e.target.value)}
-            className="w-full rounded-md border border-brand-200 bg-white px-3 py-2 text-sm focus:border-brand-400 outline-none"
-          />
+        <div className="space-y-1.5">
+          <label className={LABEL}>Dal</label>
+          <div className="relative">
+            <Calendar className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-brand-400" />
+            <input
+              type="date"
+              value={periodStart}
+              onChange={(e) => setPeriodStart(e.target.value)}
+              className={`${INPUT} pl-9`}
+            />
+          </div>
         </div>
-        <div className="space-y-1">
-          <label className="text-sm text-neutral-600">Al</label>
-          <input
-            type="date"
-            value={periodEnd}
-            onChange={(e) => setPeriodEnd(e.target.value)}
-            className="w-full rounded-md border border-brand-200 bg-white px-3 py-2 text-sm focus:border-brand-400 outline-none"
-          />
+        <div className="space-y-1.5">
+          <label className={LABEL}>Al</label>
+          <div className="relative">
+            <Calendar className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-brand-400" />
+            <input
+              type="date"
+              value={periodEnd}
+              onChange={(e) => setPeriodEnd(e.target.value)}
+              className={`${INPUT} pl-9`}
+            />
+          </div>
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        <div className="space-y-1">
-          <label className="text-sm text-neutral-600">Spesa (€)</label>
-          <input
-            type="number"
-            step="0.01"
-            value={spend}
-            onChange={(e) => setSpend(e.target.value)}
-            className="w-full rounded-md border border-brand-200 bg-white px-3 py-2 text-sm focus:border-brand-400 outline-none"
-          />
+        <div className="space-y-1.5">
+          <label className={LABEL}>Spesa (€)</label>
+          <div className="relative">
+            <Euro className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-brand-400" />
+            <input
+              type="number"
+              step="0.01"
+              placeholder="0,00"
+              value={spend}
+              onChange={(e) => setSpend(e.target.value)}
+              className={`${INPUT} pl-9`}
+            />
+          </div>
         </div>
-        <div className="space-y-1">
-          <label className="text-sm text-neutral-600">Obiettivo campagna</label>
+        <div className="space-y-1.5">
+          <label className={LABEL}>Obiettivo campagna</label>
           <input
             value={campaignObjective}
             onChange={(e) => setCampaignObjective(e.target.value)}
             placeholder="Es. Acquisizione follower"
-            className="w-full rounded-md border border-brand-200 bg-white px-3 py-2 text-sm focus:border-brand-400 outline-none"
+            className={INPUT}
           />
         </div>
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm text-neutral-600">Metriche</label>
+        <label className={LABEL}>Metriche</label>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {metrics.map((metric, i) => (
-            <div key={i} className="relative space-y-1 rounded-md border border-brand-100 p-2">
+            <div key={i} className="relative space-y-1.5 rounded-lg border border-brand-100 bg-brand-50/30 p-2.5">
               <button
                 type="button"
                 onClick={() => removeMetric(i)}
                 title="Rimuovi metrica"
-                className="absolute right-1 top-1 rounded-full px-1 text-xs text-brand-400 hover:text-brand-700"
+                className="absolute right-1.5 top-1.5 rounded-full p-0.5 text-brand-400 hover:bg-white hover:text-brand-700"
               >
-                ✕
+                <X className="h-3.5 w-3.5" />
               </button>
               <input
                 value={metric.label}
                 onChange={(e) => updateMetric(i, 'label', e.target.value)}
                 placeholder="Titolo"
-                className="w-full border-0 bg-transparent p-0 pr-4 text-sm text-neutral-600 outline-none"
+                className="w-full border-0 bg-transparent p-0 pr-4 text-sm font-medium text-neutral-700 outline-none placeholder:font-normal placeholder:text-neutral-400"
               />
               <input
                 type="number"
                 value={metric.value}
                 onChange={(e) => updateMetric(i, 'value', e.target.value)}
-                className="w-full rounded-md border border-brand-200 bg-white px-3 py-2 text-sm focus:border-brand-400 outline-none"
+                placeholder="0"
+                className="w-full rounded-md border border-brand-200 bg-white px-2.5 py-2 text-sm outline-none transition-colors focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
               />
             </div>
           ))}
@@ -208,57 +225,61 @@ export function ReportForm({ pageId, report, onSaved, onCancel, onDelete }: Prop
         <button
           type="button"
           onClick={addMetric}
-          className="rounded-full border border-dashed border-brand-300 px-3 py-1 text-xs text-brand-700"
+          className="rounded-full border border-dashed border-brand-300 px-3 py-1.5 text-xs font-medium text-brand-700 hover:bg-brand-50"
         >
           + Aggiungi voce
         </button>
       </div>
 
-      <div className="space-y-1">
-        <label className="text-sm text-neutral-600">Screenshot report Meta</label>
+      <div className="space-y-1.5">
+        <label className={LABEL}>Screenshot report Meta</label>
         {existingUrl && (
           <div className="relative w-fit">
-            <img src={existingUrl} alt="" className="h-24 w-auto rounded object-cover" />
+            <img src={existingUrl} alt="" className="h-24 w-auto rounded-lg object-cover" />
             <button
               type="button"
               onClick={removeExisting}
-              className="absolute -right-1 -top-1 rounded-full bg-brand-800 px-1.5 text-xs text-white"
+              className="absolute -right-2 -top-2 rounded-full bg-brand-700 p-1 text-white shadow-sm"
             >
-              ✕
+              <X className="h-3 w-3" />
             </button>
           </div>
         )}
         {!existingUrl && newFile && (
-          <img src={URL.createObjectURL(newFile)} alt="" className="h-24 w-auto rounded object-cover" />
+          <img src={URL.createObjectURL(newFile)} alt="" className="h-24 w-auto rounded-lg object-cover" />
         )}
         {!existingUrl && (
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => setNewFile(e.target.files?.[0] ?? null)}
-            className="w-full text-sm"
-          />
+          <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-brand-300 bg-brand-50/40 px-3 py-2.5 text-sm text-brand-600 hover:bg-brand-50">
+            <ImageUp className="h-4 w-4" />
+            Carica screenshot
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => setNewFile(e.target.files?.[0] ?? null)}
+              className="hidden"
+            />
+          </label>
         )}
       </div>
 
-      <div className="space-y-1">
-        <label className="text-sm text-neutral-600">Note (opzionale)</label>
+      <div className="space-y-1.5">
+        <label className={LABEL}>Note (opzionale)</label>
         <textarea
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           rows={2}
-          className="w-full rounded-md border border-brand-200 bg-white px-3 py-2 text-sm focus:border-brand-400 outline-none"
+          className={INPUT}
         />
       </div>
 
       {error && <p className="text-sm text-brand-700">{error}</p>}
 
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex items-center justify-between gap-2 border-t border-brand-100 pt-4">
         {report && onDelete ? (
           <button
             type="button"
             onClick={onDelete}
-            className="rounded-md border border-red-200 px-3 py-2 text-sm text-red-700"
+            className="rounded-lg border border-red-200 px-3 py-2 text-sm font-medium text-red-700 hover:bg-red-50"
           >
             Elimina
           </button>
@@ -269,14 +290,14 @@ export function ReportForm({ pageId, report, onSaved, onCancel, onDelete }: Prop
           <button
             type="button"
             onClick={onCancel}
-            className="rounded-md border border-brand-200 px-3 py-2 text-sm text-brand-700"
+            className="rounded-lg border border-brand-200 px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-brand-50"
           >
             Annulla
           </button>
           <button
             type="submit"
             disabled={saving}
-            className="rounded-md bg-brand-300 px-3 py-2 text-sm font-medium text-neutral-800 hover:bg-brand-400 disabled:opacity-50"
+            className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white shadow-sm shadow-brand-300/60 hover:bg-brand-600 disabled:opacity-50"
           >
             {saving ? 'Salvataggio…' : 'Salva'}
           </button>

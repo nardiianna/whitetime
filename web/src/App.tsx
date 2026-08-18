@@ -52,7 +52,7 @@ function App() {
 
   if (profileError || !profile) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-brand-50 px-4">
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-brand-50 to-white px-4">
         <div className="space-y-3 text-center">
           <p className="text-sm text-neutral-600">
             Il tuo accesso non è ancora configurato. Contatta chi gestisce l'app.

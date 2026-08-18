@@ -228,13 +228,13 @@ function AdminApp() {
 
   return (
     <>
-        <div className="mb-4 flex flex-wrap gap-2">
+        <div className="mb-5 flex flex-wrap gap-2">
           <button
             onClick={() => setSelectedPageId(ALL)}
-            className={`rounded-full px-3 py-1.5 text-sm ${
+            className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
               selectedPageId === ALL
-                ? 'bg-brand-300 text-neutral-800'
-                : 'border border-brand-200 text-brand-700'
+                ? 'bg-brand-500 text-white shadow-sm shadow-brand-300/70'
+                : 'border border-brand-200 bg-white text-neutral-700 hover:bg-brand-50'
             }`}
           >
             Tutte
@@ -245,14 +245,14 @@ function AdminApp() {
               <div key={page.id} className="flex items-center gap-0.5">
                 <button
                   onClick={() => setSelectedPageId(page.id)}
-                  className={`rounded-full px-3 py-1.5 text-sm ${
+                  className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
                     selectedPageId === page.id
                       ? isPersonalPage
-                        ? 'bg-personal-300 text-neutral-800'
-                        : 'bg-brand-300 text-neutral-800'
+                        ? 'bg-personal-500 text-white shadow-sm shadow-personal-300/70'
+                        : 'bg-brand-500 text-white shadow-sm shadow-brand-300/70'
                       : isPersonalPage
-                        ? 'border border-personal-200 text-personal-700'
-                        : 'border border-brand-200 text-brand-700'
+                        ? 'border border-personal-200 bg-white text-personal-700 hover:bg-personal-50'
+                        : 'border border-brand-200 bg-white text-neutral-700 hover:bg-brand-50'
                   }`}
                 >
                   {page.name}
@@ -274,14 +274,14 @@ function AdminApp() {
           })}
           <button
             onClick={openNewPageForm}
-            className="rounded-full border border-dashed border-brand-300 px-3 py-1.5 text-sm text-brand-700"
+            className="rounded-full border border-dashed border-brand-300 px-4 py-2 text-sm font-medium text-brand-700 hover:bg-brand-50"
           >
             + Cliente
           </button>
         </div>
 
         {showPageForm && (
-          <div className="mb-4 space-y-3">
+          <div className="mb-5 space-y-3">
             <PageForm
               page={editingPage}
               onSaved={() => {
@@ -300,17 +300,17 @@ function AdminApp() {
         )}
 
         {selectedPageId !== ALL && (
-          <div className="mb-4 flex flex-wrap items-center gap-2">
+          <div className="mb-5 flex flex-wrap items-center gap-2">
             <button
               onClick={() => setSelectedCategoryId(ALL)}
-              className={`rounded-full px-3 py-1 text-xs ${
+              className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
                 selectedCategoryId === ALL
                   ? isPersonalSelected
                     ? 'bg-personal-200 text-neutral-800'
                     : 'bg-brand-200 text-neutral-800'
                   : isPersonalSelected
-                    ? 'border border-personal-100 text-personal-600'
-                    : 'border border-brand-100 text-brand-600'
+                    ? 'border border-personal-100 bg-white text-personal-600 hover:bg-personal-50'
+                    : 'border border-brand-100 bg-white text-brand-600 hover:bg-brand-50'
               }`}
             >
               Tutte le categorie
@@ -319,14 +319,14 @@ function AdminApp() {
               <div key={category.id} className="flex items-center gap-0.5">
                 <button
                   onClick={() => setSelectedCategoryId(category.id)}
-                  className={`rounded-full px-3 py-1 text-xs ${
+                  className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
                     selectedCategoryId === category.id
                       ? isPersonalSelected
                         ? 'bg-personal-200 text-neutral-800'
                         : 'bg-brand-200 text-neutral-800'
                       : isPersonalSelected
-                        ? 'border border-personal-100 text-personal-600'
-                        : 'border border-brand-100 text-brand-600'
+                        ? 'border border-personal-100 bg-white text-personal-600 hover:bg-personal-50'
+                        : 'border border-brand-100 bg-white text-brand-600 hover:bg-brand-50'
                   }`}
                 >
                   {category.name}
@@ -364,7 +364,7 @@ function AdminApp() {
             ) : (
               <button
                 onClick={openNewCategoryForm}
-                className="rounded-full border border-dashed border-brand-200 px-3 py-1 text-xs text-brand-600"
+                className="rounded-full border border-dashed border-brand-200 px-3 py-1.5 text-xs font-medium text-brand-600 hover:bg-brand-50"
               >
                 + Categoria
               </button>
@@ -372,20 +372,20 @@ function AdminApp() {
           </div>
         )}
 
-        <div className="mb-4 flex items-center justify-between gap-2">
-          <div className="flex gap-1 rounded-full border border-brand-200 p-0.5">
+        <div className="mb-5 flex items-center justify-between gap-2">
+          <div className="flex gap-1 rounded-full border border-brand-100 bg-white p-1 shadow-sm shadow-brand-100/60">
             <button
               onClick={() => setViewMode('calendar')}
-              className={`rounded-full px-3 py-1 text-xs ${
-                viewMode === 'calendar' ? 'bg-brand-300 text-neutral-800' : 'text-brand-700'
+              className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                viewMode === 'calendar' ? 'bg-brand-500 text-white shadow-sm shadow-brand-300/70' : 'text-neutral-600 hover:bg-brand-50'
               }`}
             >
               Calendario
             </button>
             <button
               onClick={() => setViewMode('list')}
-              className={`rounded-full px-3 py-1 text-xs ${
-                viewMode === 'list' ? 'bg-brand-300 text-neutral-800' : 'text-brand-700'
+              className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                viewMode === 'list' ? 'bg-brand-500 text-white shadow-sm shadow-brand-300/70' : 'text-neutral-600 hover:bg-brand-50'
               }`}
             >
               Elenco
@@ -393,7 +393,7 @@ function AdminApp() {
           </div>
           <button
             onClick={() => openNewPost()}
-            className="rounded-md bg-brand-300 px-3 py-2 text-sm font-medium text-neutral-800 hover:bg-brand-400"
+            className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white shadow-sm shadow-brand-300/60 hover:bg-brand-600"
           >
             {isPersonalSelected ? '+ Nuovo evento' : '+ Nuovo post'}
           </button>

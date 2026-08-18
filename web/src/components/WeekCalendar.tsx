@@ -63,7 +63,7 @@ export function WeekCalendar({
       <div className="flex items-center justify-between gap-2">
         <button
           onClick={onPrevWeek}
-          className="rounded-md border border-brand-200 px-2 py-1 text-sm text-brand-700"
+          className="rounded-lg border border-brand-200 bg-white px-2.5 py-1.5 text-sm text-brand-700 hover:bg-brand-50"
           aria-label="Settimana precedente"
         >
           ‹
@@ -72,14 +72,14 @@ export function WeekCalendar({
           <span className="text-sm font-medium text-neutral-800">{rangeLabel}</span>
           <button
             onClick={onToday}
-            className="rounded-full border border-brand-200 px-2 py-0.5 text-xs text-brand-700"
+            className="rounded-full border border-brand-200 bg-white px-3 py-1 text-xs font-medium text-brand-700 hover:bg-brand-50"
           >
             Oggi
           </button>
         </div>
         <button
           onClick={onNextWeek}
-          className="rounded-md border border-brand-200 px-2 py-1 text-sm text-brand-700"
+          className="rounded-lg border border-brand-200 bg-white px-2.5 py-1.5 text-sm text-brand-700 hover:bg-brand-50"
           aria-label="Settimana successiva"
         >
           ›
@@ -111,7 +111,7 @@ export function WeekCalendar({
                   </span>
                   <button
                     onClick={() => onQuickAdd(day)}
-                    className="rounded-full border border-dashed border-brand-300 px-1.5 text-xs leading-5 text-brand-700"
+                    className="rounded-full border border-dashed border-brand-300 bg-white px-1.5 text-xs leading-5 text-brand-700 hover:bg-brand-50"
                     aria-label="Aggiungi post"
                   >
                     +
@@ -126,9 +126,9 @@ export function WeekCalendar({
                       <div
                         key={post.id}
                         onClick={() => onEdit(post)}
-                        className={`cursor-pointer space-y-1 rounded-md border bg-white p-1.5 text-xs ${
+                        className={`cursor-pointer space-y-1 rounded-lg border bg-white p-2 text-xs shadow-sm transition-colors ${
                           isPersonal
-                            ? 'border-personal-200 hover:border-personal-400'
+                            ? 'border-personal-100 hover:border-personal-300'
                             : 'border-brand-100 hover:border-brand-300'
                         }`}
                       >

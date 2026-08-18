@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
+import { Lightbulb } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import type { ContentIdea } from '../types'
 
@@ -40,24 +41,29 @@ export function IdeasBank({ pageId, ideas, onChanged }: Props) {
   const used = ideas.filter((i) => i.used)
 
   return (
-    <div className="space-y-3 rounded-xl border border-brand-200 bg-white p-4">
-      <h3 className="text-sm font-semibold text-brand-600">Banca idee</h3>
+    <div className="space-y-4 rounded-2xl border border-brand-100 bg-white p-5 shadow-sm shadow-brand-100/50">
+      <div className="flex items-center gap-3">
+        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-50 text-brand-600">
+          <Lightbulb className="h-5 w-5" />
+        </div>
+        <h3 className="text-base font-semibold text-brand-600">Banca idee</h3>
+      </div>
       <form onSubmit={handleAdd} className="flex gap-2">
         <input
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder="Nuova idea…"
-          className="flex-1 rounded-md border border-brand-200 bg-white px-3 py-1.5 text-sm outline-none focus:border-brand-400"
+          className="flex-1 rounded-lg border border-brand-200 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
         />
         <input
           value={pillar}
           onChange={(e) => setPillar(e.target.value)}
           placeholder="Categoria (opz.)"
-          className="w-40 rounded-md border border-brand-200 bg-white px-3 py-1.5 text-sm outline-none focus:border-brand-400"
+          className="w-40 rounded-lg border border-brand-200 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
         />
         <button
           type="submit"
-          className="rounded-md bg-brand-300 px-3 py-1.5 text-sm font-medium text-neutral-800 hover:bg-brand-400"
+          className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white shadow-sm shadow-brand-300/60 hover:bg-brand-600"
         >
           Aggiungi
         </button>

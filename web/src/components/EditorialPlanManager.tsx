@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { FileText, Plus } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { EDITORIAL_STATUS_LABELS } from '../types'
 import type { EditorialPlanItem } from '../types'
@@ -12,7 +13,7 @@ const STATUS_STYLES: Record<string, string> = {
   idea: 'bg-white text-brand-600 border border-brand-200',
   da_fare: 'bg-brand-50 text-brand-600',
   programmato: 'bg-brand-100 text-brand-700',
-  pubblicato: 'bg-brand-300 text-neutral-800 font-medium',
+  pubblicato: 'bg-brand-400 text-white font-medium',
 }
 
 export function EditorialPlanManager({ pageId }: Props) {
@@ -52,15 +53,21 @@ export function EditorialPlanManager({ pageId }: Props) {
   }
 
   return (
-    <div className="space-y-3 rounded-xl border border-brand-200 bg-white p-4">
+    <div className="space-y-4 rounded-2xl border border-brand-100 bg-white p-5 shadow-sm shadow-brand-100/50">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-brand-600">Piano Editoriale</h3>
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-50 text-brand-600">
+            <FileText className="h-5 w-5" />
+          </div>
+          <h3 className="text-base font-semibold text-brand-600">Piano Editoriale</h3>
+        </div>
         {!showForm && (
           <button
             onClick={openNew}
-            className="rounded-full border border-dashed border-brand-300 px-3 py-1 text-xs text-brand-700"
+            className="flex items-center gap-1.5 rounded-full border border-dashed border-brand-300 px-3 py-1.5 text-xs font-medium text-brand-700 hover:bg-brand-50"
           >
-            + Nuovo contenuto
+            <Plus className="h-3.5 w-3.5" />
+            Nuovo contenuto
           </button>
         )}
       </div>
@@ -92,7 +99,7 @@ export function EditorialPlanManager({ pageId }: Props) {
             <li
               key={item.id}
               onClick={() => openEdit(item)}
-              className="flex cursor-pointer flex-col gap-2 rounded-lg border border-brand-100 p-3 hover:border-brand-300 sm:flex-row sm:items-center"
+              className="flex cursor-pointer flex-col gap-2 rounded-xl border border-brand-100 p-3 transition-colors hover:border-brand-300 hover:bg-brand-50/40 sm:flex-row sm:items-center"
             >
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
@@ -128,7 +135,7 @@ export function EditorialPlanManager({ pageId }: Props) {
                   e.stopPropagation()
                   handleDelete(item)
                 }}
-                className="self-start rounded-md border border-brand-300 px-2 py-1 text-xs text-brand-800 sm:self-center"
+                className="self-start rounded-full border border-brand-200 px-3 py-1 text-xs font-medium text-brand-700 hover:bg-brand-50 sm:self-center"
               >
                 Elimina
               </button>

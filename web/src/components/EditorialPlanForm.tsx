@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
+import { Calendar } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { EDITORIAL_STATUS_LABELS } from '../types'
 import type { EditorialPlanItem, EditorialStatus } from '../types'
@@ -68,23 +69,26 @@ export function EditorialPlanForm({ pageId, item, onSaved, onCancel, onDelete }:
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 rounded-xl border border-brand-200 bg-white p-4">
+    <form onSubmit={handleSubmit} className="space-y-5 rounded-2xl border border-brand-100 bg-white p-5 shadow-sm shadow-brand-100/50">
       <div className="grid grid-cols-2 gap-3">
-        <div className="space-y-1">
-          <label className="text-sm text-neutral-600">Data</label>
-          <input
-            type="date"
-            value={scheduledDate}
-            onChange={(e) => setScheduledDate(e.target.value)}
-            className="w-full rounded-md border border-brand-200 bg-white px-3 py-2 text-sm focus:border-brand-400 outline-none"
-          />
+        <div className="space-y-1.5">
+          <label className="text-sm font-medium text-neutral-700">Data</label>
+          <div className="relative">
+            <Calendar className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-brand-400" />
+            <input
+              type="date"
+              value={scheduledDate}
+              onChange={(e) => setScheduledDate(e.target.value)}
+              className="w-full rounded-lg border border-brand-200 bg-white py-2.5 pl-9 pr-3 text-sm text-neutral-800 outline-none transition-colors focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
+            />
+          </div>
         </div>
         <div className="space-y-1">
-          <label className="text-sm text-neutral-600">Stato</label>
+          <label className="text-sm font-medium text-neutral-700">Stato</label>
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value as EditorialStatus)}
-            className="w-full rounded-md border border-brand-200 bg-white px-3 py-2 text-sm focus:border-brand-400 outline-none"
+            className="w-full rounded-lg border border-brand-200 bg-white px-3 py-2.5 text-sm text-neutral-800 outline-none transition-colors focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
           >
             {(Object.keys(EDITORIAL_STATUS_LABELS) as EditorialStatus[]).map((value) => (
               <option key={value} value={value}>
@@ -97,75 +101,75 @@ export function EditorialPlanForm({ pageId, item, onSaved, onCancel, onDelete }:
 
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1">
-          <label className="text-sm text-neutral-600">Social (separati da virgola)</label>
+          <label className="text-sm font-medium text-neutral-700">Social (separati da virgola)</label>
           <input
             value={social}
             onChange={(e) => setSocial(e.target.value)}
             placeholder="Instagram, TikTok"
-            className="w-full rounded-md border border-brand-200 bg-white px-3 py-2 text-sm focus:border-brand-400 outline-none"
+            className="w-full rounded-lg border border-brand-200 bg-white px-3 py-2.5 text-sm text-neutral-800 outline-none transition-colors focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
           />
         </div>
         <div className="space-y-1">
-          <label className="text-sm text-neutral-600">Formato</label>
+          <label className="text-sm font-medium text-neutral-700">Formato</label>
           <input
             value={format}
             onChange={(e) => setFormat(e.target.value)}
             placeholder="Carosello, Reel, Pin…"
-            className="w-full rounded-md border border-brand-200 bg-white px-3 py-2 text-sm focus:border-brand-400 outline-none"
+            className="w-full rounded-lg border border-brand-200 bg-white px-3 py-2.5 text-sm text-neutral-800 outline-none transition-colors focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
           />
         </div>
       </div>
 
       <div className="space-y-1">
-        <label className="text-sm text-neutral-600">Tema</label>
+        <label className="text-sm font-medium text-neutral-700">Tema</label>
         <input
           value={theme}
           onChange={(e) => setTheme(e.target.value)}
-          className="w-full rounded-md border border-brand-200 bg-white px-3 py-2 text-sm focus:border-brand-400 outline-none"
+          className="w-full rounded-lg border border-brand-200 bg-white px-3 py-2.5 text-sm text-neutral-800 outline-none transition-colors focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
         />
       </div>
 
       <div className="space-y-1">
-        <label className="text-sm text-neutral-600">Titolo / Argomento</label>
+        <label className="text-sm font-medium text-neutral-700">Titolo / Argomento</label>
         <input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="w-full rounded-md border border-brand-200 bg-white px-3 py-2 text-sm focus:border-brand-400 outline-none"
+          className="w-full rounded-lg border border-brand-200 bg-white px-3 py-2.5 text-sm text-neutral-800 outline-none transition-colors focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
         />
       </div>
 
       <div className="space-y-1">
-        <label className="text-sm text-neutral-600">Caption</label>
+        <label className="text-sm font-medium text-neutral-700">Caption</label>
         <textarea
           value={caption}
           onChange={(e) => setCaption(e.target.value)}
           rows={3}
-          className="w-full rounded-md border border-brand-200 bg-white px-3 py-2 text-sm focus:border-brand-400 outline-none"
+          className="w-full rounded-lg border border-brand-200 bg-white px-3 py-2.5 text-sm text-neutral-800 outline-none transition-colors focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
         />
       </div>
 
       <div className="space-y-1">
-        <label className="text-sm text-neutral-600">URL immagine (Drive o link diretto)</label>
+        <label className="text-sm font-medium text-neutral-700">URL immagine (Drive o link diretto)</label>
         <input
           value={imageUrl}
           onChange={(e) => setImageUrl(e.target.value)}
           placeholder="https://drive.google.com/…"
-          className="w-full rounded-md border border-brand-200 bg-white px-3 py-2 text-sm focus:border-brand-400 outline-none"
+          className="w-full rounded-lg border border-brand-200 bg-white px-3 py-2.5 text-sm text-neutral-800 outline-none transition-colors focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
         />
       </div>
 
       <div className="space-y-1">
-        <label className="text-sm text-neutral-600">Note interne (non visibili al cliente)</label>
+        <label className="text-sm font-medium text-neutral-700">Note interne (non visibili al cliente)</label>
         <textarea
           value={internalNote}
           onChange={(e) => setInternalNote(e.target.value)}
           rows={2}
-          className="w-full rounded-md border border-brand-200 bg-white px-3 py-2 text-sm focus:border-brand-400 outline-none"
+          className="w-full rounded-lg border border-brand-200 bg-white px-3 py-2.5 text-sm text-neutral-800 outline-none transition-colors focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
         />
       </div>
 
       {item?.client_note && (
-        <div className="space-y-1 rounded-md bg-brand-50 p-3">
+        <div className="space-y-1 rounded-lg bg-brand-50 p-3">
           <p className="text-xs font-semibold text-brand-600">Nota del cliente</p>
           <p className="text-sm text-neutral-800">{item.client_note}</p>
         </div>
@@ -173,12 +177,12 @@ export function EditorialPlanForm({ pageId, item, onSaved, onCancel, onDelete }:
 
       {error && <p className="text-sm text-brand-700">{error}</p>}
 
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex items-center justify-between gap-2 border-t border-brand-100 pt-4">
         {item && onDelete ? (
           <button
             type="button"
             onClick={onDelete}
-            className="rounded-md border border-red-200 px-3 py-2 text-sm text-red-700"
+            className="rounded-lg border border-red-200 px-3 py-2 text-sm font-medium text-red-700 hover:bg-red-50"
           >
             Elimina
           </button>
@@ -189,14 +193,14 @@ export function EditorialPlanForm({ pageId, item, onSaved, onCancel, onDelete }:
           <button
             type="button"
             onClick={onCancel}
-            className="rounded-md border border-brand-200 px-3 py-2 text-sm text-brand-700"
+            className="rounded-lg border border-brand-200 px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-brand-50"
           >
             Annulla
           </button>
           <button
             type="submit"
             disabled={saving}
-            className="rounded-md bg-brand-300 px-3 py-2 text-sm font-medium text-neutral-800 hover:bg-brand-400 disabled:opacity-50"
+            className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white shadow-sm shadow-brand-300/60 hover:bg-brand-600 disabled:opacity-50"
           >
             {saving ? 'Salvataggio…' : 'Salva'}
           </button>

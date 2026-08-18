@@ -35,7 +35,7 @@ export function ClientReports({ pageId }: Props) {
           ? supabase.storage.from('reports').getPublicUrl(report.screenshot_path).data.publicUrl
           : null
         return (
-          <li key={report.id} className="space-y-3 rounded-xl border border-brand-200 bg-white p-4">
+          <li key={report.id} className="space-y-3 rounded-2xl border border-brand-100 bg-white p-5 shadow-sm shadow-brand-100/50">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <span className="font-semibold text-neutral-900">{report.campaign_name}</span>
               {(report.period_start || report.period_end) && (

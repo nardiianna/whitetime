@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { BarChart3, FileText } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import type { Page } from '../types'
 import { EditorialPlanManager } from './EditorialPlanManager'
@@ -30,16 +31,16 @@ export function AdminClientArea() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <div className="flex flex-wrap gap-2">
         {pages.map((page) => (
           <button
             key={page.id}
             onClick={() => setSelectedPageId(page.id)}
-            className={`rounded-full px-3 py-1.5 text-sm ${
+            className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
               selectedPageId === page.id
-                ? 'bg-brand-300 text-neutral-800'
-                : 'border border-brand-200 text-brand-700'
+                ? 'bg-brand-500 text-white shadow-sm shadow-brand-300/70'
+                : 'border border-brand-200 bg-white text-neutral-700 hover:bg-brand-50'
             }`}
           >
             {page.name}
@@ -49,21 +50,27 @@ export function AdminClientArea() {
 
       {selectedPageId && (
         <>
-          <div className="flex gap-1 rounded-full border border-brand-200 p-0.5 w-fit">
+          <div className="flex w-fit gap-1 rounded-full border border-brand-100 bg-white p-1 shadow-sm shadow-brand-100/60">
             <button
               onClick={() => setTab('ped')}
-              className={`rounded-full px-3 py-1.5 text-sm ${
-                tab === 'ped' ? 'bg-brand-300 text-neutral-800' : 'text-brand-700'
+              className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+                tab === 'ped'
+                  ? 'bg-brand-500 text-white shadow-sm shadow-brand-300/70'
+                  : 'text-neutral-600 hover:bg-brand-50'
               }`}
             >
+              <FileText className="h-4 w-4" />
               Piano Editoriale
             </button>
             <button
               onClick={() => setTab('dashboard')}
-              className={`rounded-full px-3 py-1.5 text-sm ${
-                tab === 'dashboard' ? 'bg-brand-300 text-neutral-800' : 'text-brand-700'
+              className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+                tab === 'dashboard'
+                  ? 'bg-brand-500 text-white shadow-sm shadow-brand-300/70'
+                  : 'text-neutral-600 hover:bg-brand-50'
               }`}
             >
+              <BarChart3 className="h-4 w-4" />
               Dashboard campagne
             </button>
           </div>

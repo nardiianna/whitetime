@@ -41,8 +41,8 @@ export function PostList({ posts, onEdit, onDelete, onMarkPublished, onDuplicate
         return (
           <li
             key={post.id}
-            className={`flex flex-col gap-3 rounded-lg border bg-white p-3 sm:flex-row sm:items-center ${
-              isPersonal ? 'border-personal-100' : 'border-brand-100'
+            className={`flex flex-col gap-3 rounded-xl border bg-white p-4 shadow-sm transition-colors sm:flex-row sm:items-center ${
+              isPersonal ? 'border-personal-100 hover:border-personal-300' : 'border-brand-100 hover:border-brand-300'
             }`}
           >
             <div className="min-w-0 flex-1">

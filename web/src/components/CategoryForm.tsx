@@ -39,20 +39,20 @@ export function CategoryForm({ pageId, category, onSaved, onCancel, onDelete }: 
         value={name}
         onChange={(e) => setName(e.target.value)}
         placeholder="Nome categoria…"
-        className="rounded-md border border-brand-200 bg-white px-3 py-1.5 text-sm outline-none focus:border-brand-400"
+        className="rounded-lg border border-brand-200 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
       />
       <button
         type="submit"
         disabled={saving}
-        className="rounded-md bg-brand-300 px-3 py-1.5 text-sm font-medium text-neutral-800 hover:bg-brand-400 disabled:opacity-50"
+        className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white shadow-sm shadow-brand-300/60 hover:bg-brand-600 disabled:opacity-50"
       >
         Salva
       </button>
-      <button type="button" onClick={onCancel} className="text-sm text-brand-700">
+      <button type="button" onClick={onCancel} className="text-sm font-medium text-neutral-600 hover:text-neutral-800">
         Annulla
       </button>
       {category && onDelete && (
-        <button type="button" onClick={onDelete} className="text-sm text-red-700">
+        <button type="button" onClick={onDelete} className="text-sm font-medium text-red-700 hover:underline">
           Elimina
         </button>
       )}

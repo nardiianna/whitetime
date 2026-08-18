@@ -11,7 +11,7 @@ const STATUS_STYLES: Record<string, string> = {
   idea: 'bg-white text-brand-600 border border-brand-200',
   da_fare: 'bg-brand-50 text-brand-600',
   programmato: 'bg-brand-100 text-brand-700',
-  pubblicato: 'bg-brand-300 text-neutral-800 font-medium',
+  pubblicato: 'bg-brand-400 text-white font-medium',
 }
 
 function NoteEditor({ item, onSaved }: { item: EditorialPlanItem; onSaved: () => void }) {
@@ -41,17 +41,17 @@ function NoteEditor({ item, onSaved }: { item: EditorialPlanItem; onSaved: () =>
         }}
         rows={2}
         placeholder="Scrivi qui un commento o una richiesta per questo contenuto…"
-        className="w-full rounded-md border border-brand-200 bg-white px-3 py-2 text-sm outline-none focus:border-brand-400"
+        className="w-full rounded-lg border border-brand-200 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
       />
       <div className="flex items-center gap-2">
         <button
           onClick={handleSave}
           disabled={saving}
-          className="rounded-md bg-brand-300 px-3 py-1.5 text-xs font-medium text-neutral-800 hover:bg-brand-400 disabled:opacity-50"
+          className="rounded-lg bg-brand-500 px-3 py-1.5 text-xs font-medium text-white shadow-sm shadow-brand-300/60 hover:bg-brand-600 disabled:opacity-50"
         >
           {saving ? 'Salvataggio…' : 'Salva nota'}
         </button>
-        {saved && <span className="text-xs text-brand-600">Salvata ✓</span>}
+        {saved && <span className="text-xs font-medium text-brand-600">Salvata ✓</span>}
       </div>
     </div>
   )
@@ -85,7 +85,7 @@ export function ClientEditorialPlan({ pageId }: Props) {
   return (
     <ul className="space-y-3">
       {items.map((item) => (
-        <li key={item.id} className="space-y-3 rounded-xl border border-brand-200 bg-white p-4">
+        <li key={item.id} className="space-y-3 rounded-2xl border border-brand-100 bg-white p-5 shadow-sm shadow-brand-100/50">
           <div className="flex flex-wrap items-center gap-2">
             {item.scheduled_date && (
               <span className="text-sm text-neutral-600">

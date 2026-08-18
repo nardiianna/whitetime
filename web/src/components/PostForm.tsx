@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import type { FormEvent } from 'react'
+import { X } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { STATUS_LABELS, statusLabel } from '../types'
 import type { Page, Post, PostStatus, Category } from '../types'
@@ -117,15 +118,15 @@ export function PostForm({ pages, defaultPageId, post, defaultScheduledAt, onSav
   return (
     <form
       onSubmit={handleSubmit}
-      className="space-y-4 rounded-xl border border-brand-200 bg-white p-4"
+      className="space-y-4 rounded-2xl border border-brand-100 bg-white p-5 shadow-sm shadow-brand-100/50"
     >
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1">
-          <label className="text-sm text-neutral-600">Pagina</label>
+          <label className="text-sm font-medium text-neutral-700">Pagina</label>
           <select
             value={pageId}
             onChange={(e) => handlePageChange(e.target.value)}
-            className="w-full rounded-md border border-brand-200 bg-white px-3 py-2 text-sm focus:border-brand-400 outline-none"
+            className="w-full rounded-lg border border-brand-200 bg-white px-3 py-2.5 text-sm text-neutral-800 outline-none transition-colors focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
           >
             {pages.map((p) => (
               <option key={p.id} value={p.id}>
@@ -135,7 +136,7 @@ export function PostForm({ pages, defaultPageId, post, defaultScheduledAt, onSav
           </select>
         </div>
         <div className="space-y-1">
-          <label className="text-sm text-neutral-600">
+          <label className="text-sm font-medium text-neutral-700">
             {isPersonal ? 'Data e ora' : 'Data e ora pubblicazione'}
           </label>
           <input
@@ -143,18 +144,18 @@ export function PostForm({ pages, defaultPageId, post, defaultScheduledAt, onSav
             required
             value={scheduledAt}
             onChange={(e) => setScheduledAt(e.target.value)}
-            className="w-full rounded-md border border-brand-200 bg-white px-3 py-2 text-sm focus:border-brand-400 outline-none"
+            className="w-full rounded-lg border border-brand-200 bg-white px-3 py-2.5 text-sm text-neutral-800 outline-none transition-colors focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
           />
         </div>
       </div>
 
       {categories.length > 0 && (
         <div className="space-y-1">
-          <label className="text-sm text-neutral-600">Categoria (opzionale)</label>
+          <label className="text-sm font-medium text-neutral-700">Categoria (opzionale)</label>
           <select
             value={categoryId}
             onChange={(e) => setCategoryId(e.target.value)}
-            className="w-full rounded-md border border-brand-200 bg-white px-3 py-2 text-sm focus:border-brand-400 outline-none"
+            className="w-full rounded-lg border border-brand-200 bg-white px-3 py-2.5 text-sm text-neutral-800 outline-none transition-colors focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
           >
             <option value="">— nessuna —</option>
             {categories.map((c) => (
@@ -167,29 +168,29 @@ export function PostForm({ pages, defaultPageId, post, defaultScheduledAt, onSav
       )}
 
       <div className="space-y-1">
-        <label className="text-sm text-neutral-600">{isPersonal ? 'Descrizione' : 'Caption'}</label>
+        <label className="text-sm font-medium text-neutral-700">{isPersonal ? 'Descrizione' : 'Caption'}</label>
         <textarea
           value={caption}
           onChange={(e) => setCaption(e.target.value)}
           rows={4}
-          className="w-full rounded-md border border-brand-200 bg-white px-3 py-2 text-sm focus:border-brand-400 outline-none"
+          className="w-full rounded-lg border border-brand-200 bg-white px-3 py-2.5 text-sm text-neutral-800 outline-none transition-colors focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
         />
       </div>
 
       {!isPersonal && (
         <div className="space-y-1">
-          <label className="text-sm text-neutral-600">Immagini</label>
+          <label className="text-sm font-medium text-neutral-700">Immagini</label>
           {(existingUrls.length > 0 || newFiles.length > 0) && (
             <div className="mb-2 flex flex-wrap gap-2">
               {existingUrls.map(({ path, url }) => (
                 <div key={path} className="relative">
-                  <img src={url} alt="" className="h-24 w-24 rounded object-cover" />
+                  <img src={url} alt="" className="h-24 w-24 rounded-lg object-cover" />
                   <button
                     type="button"
                     onClick={() => removeExisting(path)}
-                    className="absolute -right-1 -top-1 rounded-full bg-brand-800 px-1.5 text-xs text-white"
+                    className="absolute -right-2 -top-2 rounded-full bg-brand-700 p-1 text-white shadow-sm"
                   >
-                    ✕
+                    <X className="h-3 w-3" />
                   </button>
                 </div>
               ))}
@@ -198,39 +199,42 @@ export function PostForm({ pages, defaultPageId, post, defaultScheduledAt, onSav
                   <img
                     src={URL.createObjectURL(f)}
                     alt=""
-                    className="h-24 w-24 rounded object-cover"
+                    className="h-24 w-24 rounded-lg object-cover"
                   />
                   <button
                     type="button"
                     onClick={() => removeNewFile(i)}
-                    className="absolute -right-1 -top-1 rounded-full bg-brand-800 px-1.5 text-xs text-white"
+                    className="absolute -right-2 -top-2 rounded-full bg-brand-700 p-1 text-white shadow-sm"
                   >
-                    ✕
+                    <X className="h-3 w-3" />
                   </button>
                 </div>
               ))}
             </div>
           )}
-          <input
-            type="file"
-            accept="image/*"
-            multiple
-            onChange={(e) => {
-              addFiles(e.target.files)
-              e.target.value = ''
-            }}
-            className="w-full text-sm"
-          />
+          <label className="flex cursor-pointer items-center justify-center rounded-lg border border-dashed border-brand-300 bg-brand-50/40 px-3 py-2.5 text-sm text-brand-600 hover:bg-brand-50">
+            Carica immagini
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={(e) => {
+                addFiles(e.target.files)
+                e.target.value = ''
+              }}
+              className="hidden"
+            />
+          </label>
         </div>
       )}
 
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1">
-          <label className="text-sm text-neutral-600">Stato</label>
+          <label className="text-sm font-medium text-neutral-700">Stato</label>
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value as PostStatus)}
-            className="w-full rounded-md border border-brand-200 bg-white px-3 py-2 text-sm focus:border-brand-400 outline-none"
+            className="w-full rounded-lg border border-brand-200 bg-white px-3 py-2.5 text-sm text-neutral-800 outline-none transition-colors focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
           >
             {(Object.keys(STATUS_LABELS) as PostStatus[]).map((value) => (
               <option key={value} value={value}>
@@ -240,29 +244,29 @@ export function PostForm({ pages, defaultPageId, post, defaultScheduledAt, onSav
           </select>
         </div>
         <div className="space-y-1">
-          <label className="text-sm text-neutral-600">Note (opzionale)</label>
+          <label className="text-sm font-medium text-neutral-700">Note (opzionale)</label>
           <input
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            className="w-full rounded-md border border-brand-200 bg-white px-3 py-2 text-sm focus:border-brand-400 outline-none"
+            className="w-full rounded-lg border border-brand-200 bg-white px-3 py-2.5 text-sm text-neutral-800 outline-none transition-colors focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
           />
         </div>
       </div>
 
       {error && <p className="text-sm text-brand-700">{error}</p>}
 
-      <div className="flex justify-end gap-2">
+      <div className="flex justify-end gap-2 border-t border-brand-100 pt-4">
         <button
           type="button"
           onClick={onCancel}
-          className="rounded-md border border-brand-200 px-3 py-2 text-sm text-brand-700"
+          className="rounded-lg border border-brand-200 px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-brand-50"
         >
           Annulla
         </button>
         <button
           type="submit"
           disabled={saving}
-          className="rounded-md bg-brand-300 px-3 py-2 text-sm font-medium text-neutral-800 hover:bg-brand-400 disabled:opacity-50"
+          className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white shadow-sm shadow-brand-300/60 hover:bg-brand-600 disabled:opacity-50"
         >
           {saving ? 'Salvataggio…' : 'Salva'}
         </button>
