@@ -90,41 +90,56 @@ export function ReportsManager({ pageId }: Props) {
       )}
 
       {reports.length > 0 && (
-        <ul className="space-y-2">
+        <ul className="space-y-3">
           {reports.map((report) => (
             <li
               key={report.id}
               onClick={() => openEdit(report)}
-              className="flex cursor-pointer flex-col gap-2 rounded-xl border border-brand-100 p-3 transition-colors hover:border-brand-300 hover:bg-brand-50/40 sm:flex-row sm:items-center"
+              className="cursor-pointer space-y-3 rounded-xl border border-brand-100 p-4 transition-colors hover:border-brand-300 hover:bg-brand-50/40"
             >
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="font-medium text-neutral-900">{report.campaign_name}</span>
-                  {(report.period_start || report.period_end) && (
-                    <span className="text-xs text-neutral-600">
-                      {report.period_start ?? '…'} → {report.period_end ?? '…'}
-                    </span>
+              <div className="flex flex-wrap items-start justify-between gap-2">
+                <div>
+                  <p className="font-semibold text-neutral-900">{report.campaign_name}</p>
+                  {report.campaign_objective && (
+                    <p className="text-xs text-brand-600">{report.campaign_objective}</p>
                   )}
                 </div>
-                <div className="flex flex-wrap gap-2 text-xs text-brand-600">
-                  {report.campaign_objective && <span>{report.campaign_objective}</span>}
-                  {report.spend != null && <span>Spesa: €{report.spend}</span>}
-                  {report.custom_metrics.map((m) => (
-                    <span key={m.label}>
-                      {m.label}: {m.value}
+                <div className="flex items-center gap-2">
+                  {(report.period_start || report.period_end) && (
+                    <span className="text-xs text-neutral-500">
+                      {report.period_start ? new Date(report.period_start).toLocaleDateString('it-IT') : '…'}
+                      {' → '}
+                      {report.period_end ? new Date(report.period_end).toLocaleDateString('it-IT') : '…'}
                     </span>
-                  ))}
+                  )}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleDelete(report)
+                    }}
+                    className="shrink-0 rounded-full border border-brand-200 px-3 py-1 text-xs font-medium text-brand-700 hover:bg-brand-50"
+                  >
+                    Elimina
+                  </button>
                 </div>
               </div>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation()
-                  handleDelete(report)
-                }}
-                className="self-start rounded-full border border-brand-200 px-3 py-1 text-xs font-medium text-brand-700 hover:bg-brand-50 sm:self-center"
-              >
-                Elimina
-              </button>
+
+              {(report.spend != null || report.custom_metrics.length > 0) && (
+                <div className="grid grid-cols-2 gap-x-4 gap-y-2 border-t border-brand-100 pt-3 text-sm sm:grid-cols-4">
+                  {report.spend != null && (
+                    <div>
+                      <p className="text-xs text-neutral-500">Spesa</p>
+                      <p className="font-semibold text-neutral-900">€{report.spend}</p>
+                    </div>
+                  )}
+                  {report.custom_metrics.map((m) => (
+                    <div key={m.label}>
+                      <p className="text-xs text-neutral-500">{m.label}</p>
+                      <p className="font-semibold text-neutral-900">{m.value}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
             </li>
           ))}
         </ul>

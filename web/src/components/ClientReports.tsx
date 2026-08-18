@@ -40,7 +40,9 @@ export function ClientReports({ pageId }: Props) {
               <span className="font-semibold text-neutral-900">{report.campaign_name}</span>
               {(report.period_start || report.period_end) && (
                 <span className="text-xs text-neutral-600">
-                  {report.period_start ?? '…'} → {report.period_end ?? '…'}
+                  {report.period_start ? new Date(report.period_start).toLocaleDateString('it-IT') : '…'}
+                  {' → '}
+                  {report.period_end ? new Date(report.period_end).toLocaleDateString('it-IT') : '…'}
                 </span>
               )}
             </div>
