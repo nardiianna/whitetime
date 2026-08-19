@@ -213,7 +213,7 @@ export function ClientEditorialPlan({ pageId, page }: Props) {
               (path) => supabase.storage.from('media').getPublicUrl(path).data.publicUrl,
             )
             return (
-              <li key={item.id} className="overflow-hidden rounded-2xl border border-brand-100 bg-white shadow-sm shadow-brand-100/50">
+              <li key={item.id} className="mx-auto w-full max-w-sm overflow-hidden rounded-2xl border border-brand-100 bg-white shadow-sm shadow-brand-100/50">
                 <PostHeader page={page} />
                 <ImageCarousel urls={imageUrls} />
                 <div className="space-y-3 p-5">
