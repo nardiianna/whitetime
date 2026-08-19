@@ -19,6 +19,7 @@ export interface Page {
   name: string
   type: PageType
   instagram_username: string | null
+  avatar_path: string | null
   notes: string | null
 }
 

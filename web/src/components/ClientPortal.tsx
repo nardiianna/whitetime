@@ -64,7 +64,7 @@ export function ClientPortal({ pageId }: Props) {
           </button>
         </div>
 
-        {tab === 'ped' ? <ClientEditorialPlan pageId={pageId} /> : <ClientReports pageId={pageId} />}
+        {page && (tab === 'ped' ? <ClientEditorialPlan pageId={pageId} page={page} /> : <ClientReports pageId={pageId} />)}
       </div>
     </div>
   )

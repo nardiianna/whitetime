@@ -2,11 +2,12 @@ import { useEffect, useState } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { EDITORIAL_STATUS_LABELS } from '../types'
-import type { EditorialPlanItem } from '../types'
+import type { EditorialPlanItem, Page } from '../types'
 import { addMonths, getMonthStart, isInMonth, monthLabel } from '../lib/date'
 
 interface Props {
   pageId: string
+  page: Page
 }
 
 const STATUS_STYLES: Record<string, string> = {
@@ -14,6 +15,70 @@ const STATUS_STYLES: Record<string, string> = {
   da_fare: 'bg-brand-50 text-brand-600',
   programmato: 'bg-brand-100 text-brand-700',
   pubblicato: 'bg-brand-400 text-white font-medium',
+}
+
+function PostHeader({ page }: { page: Page }) {
+  const avatarUrl = page.avatar_path ? supabase.storage.from('media').getPublicUrl(page.avatar_path).data.publicUrl : null
+  const handle = page.instagram_username || page.name
+
+  return (
+    <div className="flex items-center gap-2.5 p-3">
+      {avatarUrl ? (
+        <img src={avatarUrl} alt="" className="h-8 w-8 rounded-full object-cover" />
+      ) : (
+        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-200 text-xs font-semibold text-brand-700">
+          {page.name.charAt(0).toUpperCase()}
+        </div>
+      )}
+      <span className="text-sm font-semibold text-neutral-900">{handle}</span>
+    </div>
+  )
+}
+
+function ImageCarousel({ urls }: { urls: string[] }) {
+  const [index, setIndex] = useState(0)
+
+  if (urls.length === 0) return null
+
+  return (
+    <div className="relative overflow-hidden bg-neutral-100">
+      <div
+        className="flex transition-transform duration-300 ease-out"
+        style={{ transform: `translateX(-${index * 100}%)` }}
+      >
+        {urls.map((url, i) => (
+          <img key={i} src={url} alt="" className="h-64 w-full shrink-0 object-cover sm:h-80" />
+        ))}
+      </div>
+
+      {urls.length > 1 && (
+        <>
+          <button
+            onClick={() => setIndex((i) => (i - 1 + urls.length) % urls.length)}
+            aria-label="Foto precedente"
+            className="absolute left-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-neutral-800 shadow-sm hover:bg-white"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          <button
+            onClick={() => setIndex((i) => (i + 1) % urls.length)}
+            aria-label="Foto successiva"
+            className="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-neutral-800 shadow-sm hover:bg-white"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+          <div className="absolute bottom-2.5 left-1/2 flex -translate-x-1/2 gap-1.5">
+            {urls.map((_, i) => (
+              <span
+                key={i}
+                className={`h-1.5 w-1.5 rounded-full transition-colors ${i === index ? 'bg-white' : 'bg-white/50'}`}
+              />
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  )
 }
 
 function ApprovalAndNote({ item, onSaved }: { item: EditorialPlanItem; onSaved: () => void }) {
@@ -87,7 +152,7 @@ function ApprovalAndNote({ item, onSaved }: { item: EditorialPlanItem; onSaved: 
   )
 }
 
-export function ClientEditorialPlan({ pageId }: Props) {
+export function ClientEditorialPlan({ pageId, page }: Props) {
   const [items, setItems] = useState<EditorialPlanItem[]>([])
   const [loading, setLoading] = useState(true)
   const [monthStart, setMonthStart] = useState(() => getMonthStart(new Date()))
@@ -149,25 +214,8 @@ export function ClientEditorialPlan({ pageId }: Props) {
             )
             return (
               <li key={item.id} className="overflow-hidden rounded-2xl border border-brand-100 bg-white shadow-sm shadow-brand-100/50">
-                {imageUrls.length > 0 && (
-                  <div className="relative">
-                    <div className="flex snap-x snap-mandatory overflow-x-auto">
-                      {imageUrls.map((url, i) => (
-                        <img
-                          key={i}
-                          src={url}
-                          alt=""
-                          className="h-64 w-full shrink-0 snap-center object-cover sm:h-80"
-                        />
-                      ))}
-                    </div>
-                    {imageUrls.length > 1 && (
-                      <span className="absolute right-3 top-3 rounded-full bg-black/60 px-2 py-0.5 text-xs font-medium text-white">
-                        {imageUrls.length} foto
-                      </span>
-                    )}
-                  </div>
-                )}
+                <PostHeader page={page} />
+                <ImageCarousel urls={imageUrls} />
                 <div className="space-y-3 p-5">
                   <div className="flex flex-wrap items-center gap-2">
                     {item.scheduled_date && (

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
+import { ImageUp, X } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import type { Page } from '../types'
 import { ClientAccessForm } from './ClientAccessForm'
@@ -15,23 +16,50 @@ export function PageForm({ page, onSaved, onCancel, onDelete }: Props) {
   const [name, setName] = useState(page?.name ?? '')
   const [instagramUsername, setInstagramUsername] = useState(page?.instagram_username ?? '')
   const [notes, setNotes] = useState(page?.notes ?? '')
+  const [existingAvatarPath, setExistingAvatarPath] = useState(page?.avatar_path ?? null)
+  const [removedAvatarPath, setRemovedAvatarPath] = useState<string | null>(null)
+  const [newAvatarFile, setNewAvatarFile] = useState<File | null>(null)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  const existingAvatarUrl = existingAvatarPath
+    ? supabase.storage.from('media').getPublicUrl(existingAvatarPath).data.publicUrl
+    : null
+
+  function removeExistingAvatar() {
+    if (existingAvatarPath) setRemovedAvatarPath(existingAvatarPath)
+    setExistingAvatarPath(null)
+  }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     setSaving(true)
     setError(null)
     try {
+      let avatarPath = existingAvatarPath
+      if (newAvatarFile) {
+        const path = `${page?.id ?? 'new'}/avatar-${crypto.randomUUID()}-${newAvatarFile.name}`
+        const { error: uploadError } = await supabase.storage.from('media').upload(path, newAvatarFile)
+        if (uploadError) throw uploadError
+        avatarPath = path
+      }
+
       const payload = {
         name: name.trim(),
         instagram_username: instagramUsername.trim() || null,
         notes: notes.trim() || null,
+        avatar_path: avatarPath,
       }
       const { error: saveError } = page
         ? await supabase.from('pages').update(payload).eq('id', page.id)
         : await supabase.from('pages').insert(payload)
       if (saveError) throw saveError
+
+      if (removedAvatarPath) {
+        const { error: removeError } = await supabase.storage.from('media').remove([removedAvatarPath])
+        if (removeError) console.error('Failed to delete removed avatar', removeError)
+      }
+
       onSaved()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Errore durante il salvataggio')
@@ -65,6 +93,42 @@ export function PageForm({ page, onSaved, onCancel, onDelete }: Props) {
           placeholder="Es. nome.pagina"
           className="w-full rounded-lg border border-brand-200 bg-white px-3 py-2.5 text-sm text-neutral-800 outline-none transition-colors focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
         />
+      </div>
+
+      <div className="space-y-1.5">
+        <label className="text-sm font-medium text-neutral-700">Foto profilo (per l'anteprima stile Instagram)</label>
+        <div className="flex items-center gap-3">
+          {existingAvatarUrl ? (
+            <div className="relative">
+              <img src={existingAvatarUrl} alt="" className="h-12 w-12 rounded-full object-cover" />
+              <button
+                type="button"
+                onClick={removeExistingAvatar}
+                className="absolute -right-1 -top-1 rounded-full bg-brand-700 p-0.5 text-white shadow-sm"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </div>
+          ) : newAvatarFile ? (
+            <img src={URL.createObjectURL(newAvatarFile)} alt="" className="h-12 w-12 rounded-full object-cover" />
+          ) : (
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-100 text-xs text-brand-500">
+              {name.charAt(0).toUpperCase() || '?'}
+            </div>
+          )}
+          {!existingAvatarUrl && (
+            <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-brand-300 bg-brand-50/40 px-3 py-2 text-sm text-brand-600 hover:bg-brand-50">
+              <ImageUp className="h-4 w-4" />
+              Carica foto
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => setNewAvatarFile(e.target.files?.[0] ?? null)}
+                className="hidden"
+              />
+            </label>
+          )}
+        </div>
       </div>
 
       <div className="space-y-1">
