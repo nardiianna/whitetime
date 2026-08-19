@@ -47,7 +47,7 @@ function ImageCarousel({ urls }: { urls: string[] }) {
         style={{ transform: `translateX(-${index * 100}%)` }}
       >
         {urls.map((url, i) => (
-          <img key={i} src={url} alt="" className="h-64 w-full shrink-0 object-cover sm:h-80" />
+          <img key={i} src={url} alt="" className="aspect-[4/5] w-full shrink-0 object-cover" />
         ))}
       </div>
 
