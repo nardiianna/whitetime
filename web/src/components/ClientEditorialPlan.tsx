@@ -217,36 +217,39 @@ export function ClientEditorialPlan({ pageId, page }: Props) {
                 <PostHeader page={page} />
                 <ImageCarousel urls={imageUrls} />
                 <div className="space-y-3 p-5">
-                  <div className="flex flex-wrap items-center gap-2">
-                    {item.scheduled_date && (
-                      <span className="text-sm text-neutral-600">
-                        {new Date(item.scheduled_date).toLocaleDateString('it-IT', {
-                          weekday: 'long',
-                          day: '2-digit',
-                          month: '2-digit',
-                        })}
+                  {item.caption && <p className="whitespace-pre-wrap text-base text-neutral-700">{item.caption}</p>}
+
+                  <div className="space-y-3 border-t border-neutral-100 pt-3">
+                    <div className="flex flex-wrap items-center gap-2">
+                      {item.scheduled_date && (
+                        <span className="text-sm text-neutral-600">
+                          {new Date(item.scheduled_date).toLocaleDateString('it-IT', {
+                            weekday: 'long',
+                            day: '2-digit',
+                            month: '2-digit',
+                          })}
+                        </span>
+                      )}
+                      <span className={`rounded-full px-2 py-0.5 text-xs ${STATUS_STYLES[item.status]}`}>
+                        {EDITORIAL_STATUS_LABELS[item.status]}
                       </span>
-                    )}
-                    <span className={`rounded-full px-2 py-0.5 text-xs ${STATUS_STYLES[item.status]}`}>
-                      {EDITORIAL_STATUS_LABELS[item.status]}
-                    </span>
-                    {item.social.map((s) => (
-                      <span key={s} className="rounded-full bg-brand-50 px-2 py-0.5 text-xs text-brand-600">
-                        {s}
-                      </span>
-                    ))}
-                    {item.format && (
-                      <span className="rounded-full bg-brand-50 px-2 py-0.5 text-xs text-brand-600">{item.format}</span>
+                      {item.social.map((s) => (
+                        <span key={s} className="rounded-full bg-brand-50 px-2 py-0.5 text-xs text-brand-600">
+                          {s}
+                        </span>
+                      ))}
+                      {item.format && (
+                        <span className="rounded-full bg-brand-50 px-2 py-0.5 text-xs text-brand-600">{item.format}</span>
+                      )}
+                    </div>
+
+                    {item.theme && <p className="text-lg font-semibold text-neutral-900">{item.theme}</p>}
+                    {item.image_url && (
+                      <a href={item.image_url} target="_blank" rel="noreferrer" className="text-sm text-brand-600 underline">
+                        Vedi materiale
+                      </a>
                     )}
                   </div>
-
-                  {item.theme && <p className="text-lg font-semibold text-neutral-900">{item.theme}</p>}
-                  {item.image_url && (
-                    <a href={item.image_url} target="_blank" rel="noreferrer" className="text-sm text-brand-600 underline">
-                      Vedi materiale
-                    </a>
-                  )}
-                  {item.caption && <p className="whitespace-pre-wrap text-base text-neutral-700">{item.caption}</p>}
 
                   <ApprovalAndNote item={item} onSaved={loadItems} />
                 </div>
