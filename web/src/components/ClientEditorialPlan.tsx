@@ -12,10 +12,10 @@ interface Props {
 }
 
 const STATUS_STYLES: Record<string, string> = {
-  idea: 'bg-white text-brand-600 border border-brand-200',
-  da_fare: 'bg-brand-50 text-brand-600',
-  programmato: 'bg-brand-100 text-brand-700',
-  pubblicato: 'bg-brand-400 text-white font-medium',
+  idea: 'bg-white text-neutral-600 border border-neutral-300',
+  da_fare: 'bg-neutral-100 text-neutral-600',
+  programmato: 'bg-neutral-200 text-neutral-700',
+  pubblicato: 'bg-neutral-900 text-white font-medium',
 }
 
 function PostHeader({ page }: { page: Page }) {
@@ -27,7 +27,7 @@ function PostHeader({ page }: { page: Page }) {
       {avatarUrl ? (
         <img src={avatarUrl} alt="" className="h-8 w-8 rounded-full object-cover" />
       ) : (
-        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-200 text-xs font-semibold text-brand-700">
+        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-neutral-800 text-xs font-semibold text-white">
           {page.name.charAt(0).toUpperCase()}
         </div>
       )}
@@ -118,14 +118,14 @@ function ApprovalAndNote({ item, onSaved }: { item: EditorialPlanItem; onSaved: 
   }
 
   return (
-    <div className="space-y-3 border-t border-brand-100 pt-3">
+    <div className="space-y-3 border-t border-neutral-200 pt-3">
       <button
         onClick={toggleApproved}
         disabled={togglingApproval}
         className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition-colors disabled:opacity-50 ${
           approved
             ? 'border-green-200 bg-green-50 text-green-700'
-            : 'border-brand-200 bg-white text-neutral-600 hover:bg-brand-50'
+            : 'border-neutral-300 bg-white text-neutral-600 hover:bg-neutral-50'
         }`}
       >
         <span
@@ -148,17 +148,17 @@ function ApprovalAndNote({ item, onSaved }: { item: EditorialPlanItem; onSaved: 
           }}
           rows={2}
           placeholder="Scrivi qui un commento o una richiesta per questo contenuto…"
-          className="w-full rounded-lg border border-brand-200 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
+          className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-neutral-500 focus:ring-2 focus:ring-neutral-200"
         />
         <div className="flex items-center gap-2">
           <button
             onClick={handleSaveNote}
             disabled={savingNote}
-            className="rounded-lg bg-brand-500 px-3 py-1.5 text-xs font-medium text-white shadow-sm shadow-brand-300/60 hover:bg-brand-600 disabled:opacity-50"
+            className="rounded-lg bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-neutral-800 disabled:opacity-50"
           >
             {savingNote ? 'Salvataggio…' : 'Salva nota'}
           </button>
-          {saved && <span className="text-xs font-medium text-brand-600">Salvata ✓</span>}
+          {saved && <span className="text-xs font-medium text-neutral-600">Salvata ✓</span>}
         </div>
       </div>
     </div>
@@ -195,7 +195,7 @@ export function ClientEditorialPlan({ pageId, page }: Props) {
         <div className="flex items-center gap-2">
           <button
             onClick={() => setMonthStart((m) => addMonths(m, -1))}
-            className="rounded-lg border border-brand-200 bg-white p-1.5 text-brand-700 hover:bg-brand-50"
+            className="rounded-lg border border-neutral-200 bg-white p-1.5 text-neutral-700 hover:bg-neutral-50"
             aria-label="Mese precedente"
           >
             <ChevronLeft className="h-4 w-4" />
@@ -203,7 +203,7 @@ export function ClientEditorialPlan({ pageId, page }: Props) {
           <span className="text-sm font-medium text-neutral-800">{monthLabel(monthStart)}</span>
           <button
             onClick={() => setMonthStart((m) => addMonths(m, 1))}
-            className="rounded-lg border border-brand-200 bg-white p-1.5 text-brand-700 hover:bg-brand-50"
+            className="rounded-lg border border-neutral-200 bg-white p-1.5 text-neutral-700 hover:bg-neutral-50"
             aria-label="Mese successivo"
           >
             <ChevronRight className="h-4 w-4" />
@@ -211,7 +211,7 @@ export function ClientEditorialPlan({ pageId, page }: Props) {
         </div>
         <button
           onClick={() => setMonthStart(getMonthStart(new Date()))}
-          className="rounded-full border border-brand-200 bg-white px-3 py-1 text-xs font-medium text-brand-700 hover:bg-brand-50"
+          className="rounded-full border border-neutral-200 bg-white px-3 py-1 text-xs font-medium text-neutral-700 hover:bg-neutral-50"
         >
           Mese corrente
         </button>
@@ -226,7 +226,7 @@ export function ClientEditorialPlan({ pageId, page }: Props) {
               (path) => supabase.storage.from('media').getPublicUrl(path).data.publicUrl,
             )
             return (
-              <li key={item.id} className="mx-auto w-full max-w-sm overflow-hidden rounded-2xl border border-brand-100 bg-white shadow-sm shadow-brand-100/50">
+              <li key={item.id} className="mx-auto w-full max-w-sm overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
                 <PostHeader page={page} />
                 <ImageCarousel urls={imageUrls} />
                 <div className="space-y-3 p-5">
@@ -247,18 +247,18 @@ export function ClientEditorialPlan({ pageId, page }: Props) {
                         {EDITORIAL_STATUS_LABELS[item.status]}
                       </span>
                       {item.social.map((s) => (
-                        <span key={s} className="rounded-full bg-brand-50 px-2 py-0.5 text-xs text-brand-600">
+                        <span key={s} className="rounded-full bg-neutral-100 px-2 py-0.5 text-xs text-neutral-600">
                           {s}
                         </span>
                       ))}
                       {item.format && (
-                        <span className="rounded-full bg-brand-50 px-2 py-0.5 text-xs text-brand-600">{item.format}</span>
+                        <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-xs text-neutral-600">{item.format}</span>
                       )}
                     </div>
 
                     {item.theme && <p className="text-lg font-semibold text-neutral-900">{item.theme}</p>}
                     {item.image_url && (
-                      <a href={item.image_url} target="_blank" rel="noreferrer" className="text-sm text-brand-600 underline">
+                      <a href={item.image_url} target="_blank" rel="noreferrer" className="text-sm text-neutral-700 underline">
                         Vedi materiale
                       </a>
                     )}

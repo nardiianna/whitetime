@@ -35,7 +35,7 @@ export function ClientReports({ pageId }: Props) {
           ? supabase.storage.from('reports').getPublicUrl(report.screenshot_path).data.publicUrl
           : null
         return (
-          <li key={report.id} className="space-y-3 rounded-2xl border border-brand-100 bg-white p-5 shadow-sm shadow-brand-100/50">
+          <li key={report.id} className="space-y-3 rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <span className="font-semibold text-neutral-900">{report.campaign_name}</span>
               {(report.period_start || report.period_end) && (
@@ -47,7 +47,7 @@ export function ClientReports({ pageId }: Props) {
               )}
             </div>
             {report.campaign_objective && (
-              <p className="text-sm text-brand-600">Obiettivo: {report.campaign_objective}</p>
+              <p className="text-sm text-neutral-500">Obiettivo: {report.campaign_objective}</p>
             )}
 
             <div className="grid grid-cols-2 gap-2 text-sm sm:grid-cols-3">
