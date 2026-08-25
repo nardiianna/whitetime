@@ -9,7 +9,7 @@ export function AdminRoot() {
   const [section, setSection] = useState<'pianificazione' | 'clienti'>('pianificazione')
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-neutral-100 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-brand-50 to-white">
       <div className="mx-auto max-w-3xl px-4 py-6">
         <div className="mb-5 flex items-center justify-between">
           <img src={logo} alt="WhiteTime" className="h-8 w-auto" />
