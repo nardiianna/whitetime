@@ -220,13 +220,13 @@ export function ClientEditorialPlan({ pageId, page }: Props) {
       {monthItems.length === 0 ? (
         <p className="py-8 text-center text-sm text-neutral-500">Nessun contenuto pianificato per questo mese.</p>
       ) : (
-        <ul className="space-y-4">
+        <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {monthItems.map((item) => {
             const imageUrls = item.image_paths.map(
               (path) => supabase.storage.from('media').getPublicUrl(path).data.publicUrl,
             )
             return (
-              <li key={item.id} className="mx-auto w-full max-w-sm overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
+              <li key={item.id} className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
                 <PostHeader page={page} />
                 <ImageCarousel urls={imageUrls} />
                 <div className="space-y-3 p-5">
