@@ -55,29 +55,29 @@ export function IdeasBank({ pageId, ideas, onChanged }: Props) {
   const used = ideas.filter((i) => i.used)
 
   return (
-    <div className="space-y-4 rounded-2xl border border-brand-100 bg-white p-5 shadow-sm shadow-brand-100/50">
+    <div className="space-y-4 rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
       <div className="flex items-center gap-3">
-        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-50 text-brand-600">
+        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-neutral-100 text-neutral-800">
           <Lightbulb className="h-5 w-5" />
         </div>
-        <h3 className="text-base font-semibold text-brand-600">Banca idee</h3>
+        <h3 className="text-base font-semibold text-neutral-800">Banca idee</h3>
       </div>
       <form onSubmit={handleAdd} className="flex gap-2">
         <input
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder="Nuova idea…"
-          className="flex-1 rounded-lg border border-brand-200 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
+          className="flex-1 rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-neutral-500 focus:ring-2 focus:ring-neutral-200"
         />
         <input
           value={pillar}
           onChange={(e) => setPillar(e.target.value)}
           placeholder="Categoria (opz.)"
-          className="w-40 rounded-lg border border-brand-200 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
+          className="w-40 rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-neutral-500 focus:ring-2 focus:ring-neutral-200"
         />
         <button
           type="submit"
-          className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white shadow-sm shadow-brand-300/60 hover:bg-brand-600"
+          className="rounded-lg bg-neutral-900 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-neutral-800"
         >
           Aggiungi
         </button>
@@ -93,16 +93,16 @@ export function IdeasBank({ pageId, ideas, onChanged }: Props) {
             <li key={idea.id} className="flex items-center gap-2 text-sm">
               <button
                 onClick={() => toggleUsed(idea)}
-                className="h-4 w-4 shrink-0 rounded border border-brand-300"
+                className="h-4 w-4 shrink-0 rounded border border-neutral-400"
                 title="Segna come usata"
               />
               <span className="flex-1 text-neutral-800">{idea.idea_text}</span>
               {idea.pillar && (
-                <span className="rounded-full bg-brand-50 px-2 py-0.5 text-xs text-brand-600">
+                <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-xs text-neutral-800">
                   {idea.pillar}
                 </span>
               )}
-              <button onClick={() => remove(idea)} className="text-xs text-brand-700">
+              <button onClick={() => remove(idea)} className="text-xs text-neutral-700">
                 Elimina
               </button>
             </li>
@@ -116,9 +116,9 @@ export function IdeasBank({ pageId, ideas, onChanged }: Props) {
           <ul className="mt-1 space-y-1">
             {used.map((idea) => (
               <li key={idea.id} className="flex items-center gap-2 line-through">
-                <button onClick={() => toggleUsed(idea)} className="h-4 w-4 shrink-0 rounded bg-brand-300" />
+                <button onClick={() => toggleUsed(idea)} className="h-4 w-4 shrink-0 rounded bg-neutral-400" />
                 <span className="flex-1">{idea.idea_text}</span>
-                <button onClick={() => remove(idea)} className="text-xs text-brand-700 no-underline">
+                <button onClick={() => remove(idea)} className="text-xs text-neutral-700 no-underline">
                   Elimina
                 </button>
               </li>

@@ -9,26 +9,26 @@ export function AdminRoot() {
   const [section, setSection] = useState<'pianificazione' | 'clienti'>('pianificazione')
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-brand-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-neutral-100 to-white">
       <div className="mx-auto max-w-3xl px-4 py-6">
         <div className="mb-5 flex items-center justify-between">
           <img src={logo} alt="WhiteTime" className="h-8 w-auto" />
           <button
             onClick={() => supabase.auth.signOut()}
-            className="flex items-center gap-1.5 text-sm font-medium text-brand-600 hover:text-brand-700"
+            className="flex items-center gap-1.5 text-sm font-medium text-neutral-700 hover:text-neutral-900"
           >
             <LogOut className="h-4 w-4" />
             Esci
           </button>
         </div>
 
-        <div className="mb-6 flex w-fit gap-1 rounded-full border border-brand-100 bg-white p-1 shadow-sm shadow-brand-100/60">
+        <div className="mb-6 flex w-fit gap-1 rounded-full border border-neutral-200 bg-white p-1 shadow-sm">
           <button
             onClick={() => setSection('pianificazione')}
             className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
               section === 'pianificazione'
-                ? 'bg-brand-500 text-white shadow-sm shadow-brand-300/70'
-                : 'text-neutral-600 hover:bg-brand-50'
+                ? 'bg-neutral-900 text-white shadow-sm '
+                : 'text-neutral-600 hover:bg-neutral-100'
             }`}
           >
             <Calendar className="h-4 w-4" />
@@ -38,8 +38,8 @@ export function AdminRoot() {
             onClick={() => setSection('clienti')}
             className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
               section === 'clienti'
-                ? 'bg-brand-500 text-white shadow-sm shadow-brand-300/70'
-                : 'text-neutral-600 hover:bg-brand-50'
+                ? 'bg-neutral-900 text-white shadow-sm '
+                : 'text-neutral-600 hover:bg-neutral-100'
             }`}
           >
             <Users className="h-4 w-4" />

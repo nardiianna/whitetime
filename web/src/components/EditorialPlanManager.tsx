@@ -14,10 +14,10 @@ interface Props {
 type ClientFilter = 'all' | 'approved' | 'commented' | 'pending'
 
 const STATUS_STYLES: Record<string, string> = {
-  idea: 'bg-white text-brand-600 border border-brand-200',
-  da_fare: 'bg-brand-50 text-brand-600',
-  programmato: 'bg-brand-100 text-brand-700',
-  pubblicato: 'bg-brand-400 text-white font-medium',
+  idea: 'bg-white text-neutral-800 border border-neutral-300',
+  da_fare: 'bg-neutral-100 text-neutral-800',
+  programmato: 'bg-neutral-200 text-neutral-700',
+  pubblicato: 'bg-neutral-500 text-white font-medium',
 }
 
 const CLIENT_FILTERS: { key: ClientFilter; label: string }[] = [
@@ -93,13 +93,13 @@ export function EditorialPlanManager({ pageId }: Props) {
       <li
         key={item.id}
         onClick={() => openEdit(item)}
-        className="flex cursor-pointer flex-col gap-3 rounded-xl border border-brand-100 p-3 transition-colors hover:border-brand-300 hover:bg-brand-50/40 sm:flex-row sm:items-center"
+        className="flex cursor-pointer flex-col gap-3 rounded-xl border border-neutral-200 p-3 transition-colors hover:border-neutral-400 hover:bg-neutral-100/40 sm:flex-row sm:items-center"
       >
         {imageUrl && (
           <div className="relative shrink-0">
             <img src={imageUrl} alt="" className="h-16 w-16 rounded-lg object-cover" />
             {item.image_paths.length > 1 && (
-              <span className="absolute -right-1.5 -top-1.5 rounded-full bg-brand-700 px-1.5 text-[10px] font-medium text-white">
+              <span className="absolute -right-1.5 -top-1.5 rounded-full bg-neutral-700 px-1.5 text-[10px] font-medium text-white">
                 {item.image_paths.length}
               </span>
             )}
@@ -120,7 +120,7 @@ export function EditorialPlanManager({ pageId }: Props) {
               {EDITORIAL_STATUS_LABELS[item.status]}
             </span>
             {item.social.map((s) => (
-              <span key={s} className="rounded-full bg-brand-50 px-2 py-0.5 text-xs text-brand-600">
+              <span key={s} className="rounded-full bg-neutral-100 px-2 py-0.5 text-xs text-neutral-800">
                 {s}
               </span>
             ))}
@@ -130,7 +130,7 @@ export function EditorialPlanManager({ pageId }: Props) {
               </span>
             )}
             {item.client_note && (
-              <span className="rounded-full bg-brand-200 px-2 py-0.5 text-xs text-brand-800" title={item.client_note}>
+              <span className="rounded-full bg-neutral-300 px-2 py-0.5 text-xs text-neutral-900" title={item.client_note}>
                 💬 nota cliente
               </span>
             )}
@@ -144,7 +144,7 @@ export function EditorialPlanManager({ pageId }: Props) {
             e.stopPropagation()
             handleDelete(item)
           }}
-          className="self-start rounded-full border border-brand-200 px-3 py-1 text-xs font-medium text-brand-700 hover:bg-brand-50 sm:self-center"
+          className="self-start rounded-full border border-neutral-300 px-3 py-1 text-xs font-medium text-neutral-700 hover:bg-neutral-100 sm:self-center"
         >
           Elimina
         </button>
@@ -153,18 +153,18 @@ export function EditorialPlanManager({ pageId }: Props) {
   }
 
   return (
-    <div className="space-y-4 rounded-2xl border border-brand-100 bg-white p-5 shadow-sm shadow-brand-100/50">
+    <div className="space-y-4 rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-50 text-brand-600">
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-neutral-100 text-neutral-800">
             <FileText className="h-5 w-5" />
           </div>
-          <h3 className="text-base font-semibold text-brand-600">Piano Editoriale</h3>
+          <h3 className="text-base font-semibold text-neutral-800">Piano Editoriale</h3>
         </div>
         {!showForm && (
           <button
             onClick={openNew}
-            className="flex items-center gap-1.5 rounded-full border border-dashed border-brand-300 px-3 py-1.5 text-xs font-medium text-brand-700 hover:bg-brand-50"
+            className="flex items-center gap-1.5 rounded-full border border-dashed border-neutral-400 px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-100"
           >
             <Plus className="h-3.5 w-3.5" />
             Nuovo contenuto
@@ -195,7 +195,7 @@ export function EditorialPlanManager({ pageId }: Props) {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setMonthStart((m) => addMonths(m, -1))}
-                className="rounded-lg border border-brand-200 bg-white p-1.5 text-brand-700 hover:bg-brand-50"
+                className="rounded-lg border border-neutral-300 bg-white p-1.5 text-neutral-700 hover:bg-neutral-100"
                 aria-label="Mese precedente"
               >
                 <ChevronLeft className="h-4 w-4" />
@@ -203,7 +203,7 @@ export function EditorialPlanManager({ pageId }: Props) {
               <span className="text-sm font-medium text-neutral-800">{monthLabel(monthStart)}</span>
               <button
                 onClick={() => setMonthStart((m) => addMonths(m, 1))}
-                className="rounded-lg border border-brand-200 bg-white p-1.5 text-brand-700 hover:bg-brand-50"
+                className="rounded-lg border border-neutral-300 bg-white p-1.5 text-neutral-700 hover:bg-neutral-100"
                 aria-label="Mese successivo"
               >
                 <ChevronRight className="h-4 w-4" />
@@ -211,7 +211,7 @@ export function EditorialPlanManager({ pageId }: Props) {
             </div>
             <button
               onClick={() => setMonthStart(getMonthStart(new Date()))}
-              className="rounded-full border border-brand-200 bg-white px-3 py-1 text-xs font-medium text-brand-700 hover:bg-brand-50"
+              className="rounded-full border border-neutral-300 bg-white px-3 py-1 text-xs font-medium text-neutral-700 hover:bg-neutral-100"
             >
               Mese corrente
             </button>
@@ -224,8 +224,8 @@ export function EditorialPlanManager({ pageId }: Props) {
                 onClick={() => setClientFilter(f.key)}
                 className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
                   clientFilter === f.key
-                    ? 'bg-brand-500 text-white shadow-sm shadow-brand-300/70'
-                    : 'border border-brand-100 bg-white text-brand-600 hover:bg-brand-50'
+                    ? 'bg-neutral-900 text-white shadow-sm '
+                    : 'border border-neutral-200 bg-white text-neutral-800 hover:bg-neutral-100'
                 }`}
               >
                 {f.label}
@@ -239,7 +239,7 @@ export function EditorialPlanManager({ pageId }: Props) {
           {scheduled.length > 0 && <ul className="space-y-2">{scheduled.map(renderRow)}</ul>}
 
           {unscheduled.length > 0 && (
-            <div className="space-y-2 border-t border-brand-100 pt-4">
+            <div className="space-y-2 border-t border-neutral-200 pt-4">
               <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500">Senza data</p>
               <ul className="space-y-2">{unscheduled.map(renderRow)}</ul>
             </div>

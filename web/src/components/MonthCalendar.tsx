@@ -12,11 +12,11 @@ interface Props {
 }
 
 const STATUS_DOT: Record<string, string> = {
-  idea: 'border border-brand-300 bg-white',
-  da_fare: 'bg-brand-200',
-  programmato: 'bg-brand-400',
-  promemoria_inviato: 'bg-brand-600',
-  pubblicato: 'bg-brand-800',
+  idea: 'border border-neutral-400 bg-white',
+  da_fare: 'bg-neutral-300',
+  programmato: 'bg-neutral-500',
+  promemoria_inviato: 'bg-neutral-800',
+  pubblicato: 'bg-neutral-900',
 }
 
 const STATUS_DOT_PERSONAL: Record<string, string> = {
@@ -59,7 +59,7 @@ export function MonthCalendar({ posts, monthStart, onPrevMonth, onNextMonth, onT
       <div className="flex items-center justify-between gap-2">
         <button
           onClick={onPrevMonth}
-          className="rounded-lg border border-brand-200 bg-white px-2.5 py-1.5 text-sm text-brand-700 hover:bg-brand-50"
+          className="rounded-lg border border-neutral-300 bg-white px-2.5 py-1.5 text-sm text-neutral-700 hover:bg-neutral-100"
           aria-label="Mese precedente"
         >
           ‹
@@ -68,14 +68,14 @@ export function MonthCalendar({ posts, monthStart, onPrevMonth, onNextMonth, onT
           <span className="text-sm font-medium capitalize text-neutral-800">{monthLabel(monthStart)}</span>
           <button
             onClick={onToday}
-            className="rounded-full border border-brand-200 bg-white px-3 py-1 text-xs font-medium text-brand-700 hover:bg-brand-50"
+            className="rounded-full border border-neutral-300 bg-white px-3 py-1 text-xs font-medium text-neutral-700 hover:bg-neutral-100"
           >
             Oggi
           </button>
         </div>
         <button
           onClick={onNextMonth}
-          className="rounded-lg border border-brand-200 bg-white px-2.5 py-1.5 text-sm text-brand-700 hover:bg-brand-50"
+          className="rounded-lg border border-neutral-300 bg-white px-2.5 py-1.5 text-sm text-neutral-700 hover:bg-neutral-100"
           aria-label="Mese successivo"
         >
           ›
@@ -99,12 +99,12 @@ export function MonthCalendar({ posts, monthStart, onPrevMonth, onNextMonth, onT
               key={day.toISOString()}
               onClick={() => (dayPosts.length > 0 ? onDayClick(day) : onQuickAdd(day))}
               className={`group flex min-h-[64px] flex-col items-start gap-1 rounded-lg border p-1.5 text-left transition-colors ${
-                inMonth ? 'border-brand-100 bg-white hover:border-brand-300' : 'border-transparent bg-neutral-50 text-neutral-300'
+                inMonth ? 'border-neutral-200 bg-white hover:border-neutral-400' : 'border-transparent bg-neutral-50 text-neutral-300'
               }`}
             >
               <span
                 className={`flex h-5 w-5 items-center justify-center rounded-full text-xs ${
-                  isToday ? 'bg-brand-500 font-semibold text-white' : inMonth ? 'text-neutral-700' : 'text-neutral-300'
+                  isToday ? 'bg-neutral-900 font-semibold text-white' : inMonth ? 'text-neutral-700' : 'text-neutral-300'
                 }`}
               >
                 {day.getDate()}

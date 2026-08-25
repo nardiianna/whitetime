@@ -15,11 +15,11 @@ interface Props {
 }
 
 const STATUS_DOT: Record<string, string> = {
-  idea: 'border border-brand-300 bg-white',
-  da_fare: 'bg-brand-200',
-  programmato: 'bg-brand-400',
-  promemoria_inviato: 'bg-brand-600',
-  pubblicato: 'bg-brand-800',
+  idea: 'border border-neutral-400 bg-white',
+  da_fare: 'bg-neutral-300',
+  programmato: 'bg-neutral-500',
+  promemoria_inviato: 'bg-neutral-800',
+  pubblicato: 'bg-neutral-900',
 }
 
 const STATUS_DOT_PERSONAL: Record<string, string> = {
@@ -63,7 +63,7 @@ export function WeekCalendar({
       <div className="flex items-center justify-between gap-2">
         <button
           onClick={onPrevWeek}
-          className="rounded-lg border border-brand-200 bg-white px-2.5 py-1.5 text-sm text-brand-700 hover:bg-brand-50"
+          className="rounded-lg border border-neutral-300 bg-white px-2.5 py-1.5 text-sm text-neutral-700 hover:bg-neutral-100"
           aria-label="Settimana precedente"
         >
           ‹
@@ -72,14 +72,14 @@ export function WeekCalendar({
           <span className="text-sm font-medium text-neutral-800">{rangeLabel}</span>
           <button
             onClick={onToday}
-            className="rounded-full border border-brand-200 bg-white px-3 py-1 text-xs font-medium text-brand-700 hover:bg-brand-50"
+            className="rounded-full border border-neutral-300 bg-white px-3 py-1 text-xs font-medium text-neutral-700 hover:bg-neutral-100"
           >
             Oggi
           </button>
         </div>
         <button
           onClick={onNextWeek}
-          className="rounded-lg border border-brand-200 bg-white px-2.5 py-1.5 text-sm text-brand-700 hover:bg-brand-50"
+          className="rounded-lg border border-neutral-300 bg-white px-2.5 py-1.5 text-sm text-neutral-700 hover:bg-neutral-100"
           aria-label="Settimana successiva"
         >
           ›
@@ -96,12 +96,12 @@ export function WeekCalendar({
               <div key={day.toISOString()} className="min-w-[124px] flex-1 space-y-1.5">
                 <div
                   className={`flex items-center justify-between rounded-md px-1.5 py-1 ${
-                    isToday ? 'bg-brand-100' : ''
+                    isToday ? 'bg-neutral-200' : ''
                   }`}
                 >
                   <span
                     className={`text-xs font-semibold capitalize ${
-                      isToday ? 'text-brand-700' : 'text-neutral-700'
+                      isToday ? 'text-neutral-700' : 'text-neutral-700'
                     }`}
                   >
                     {day.toLocaleDateString('it-IT', { weekday: 'short' })}{' '}
@@ -111,7 +111,7 @@ export function WeekCalendar({
                   </span>
                   <button
                     onClick={() => onQuickAdd(day)}
-                    className="rounded-full border border-dashed border-brand-300 bg-white px-1.5 text-xs leading-5 text-brand-700 hover:bg-brand-50"
+                    className="rounded-full border border-dashed border-neutral-400 bg-white px-1.5 text-xs leading-5 text-neutral-700 hover:bg-neutral-100"
                     aria-label="Aggiungi post"
                   >
                     +
@@ -129,7 +129,7 @@ export function WeekCalendar({
                         className={`cursor-pointer space-y-1 rounded-lg border bg-white p-2 text-xs shadow-sm transition-colors ${
                           isPersonal
                             ? 'border-personal-100 hover:border-personal-300'
-                            : 'border-brand-100 hover:border-brand-300'
+                            : 'border-neutral-200 hover:border-neutral-400'
                         }`}
                       >
                         <div className="flex items-center justify-between gap-1">
@@ -155,7 +155,7 @@ export function WeekCalendar({
                             })}
                           </span>
                           {post.category?.name && (
-                            <span className={`truncate ${isPersonal ? 'text-personal-600' : 'text-brand-600'}`}>
+                            <span className={`truncate ${isPersonal ? 'text-personal-600' : 'text-neutral-800'}`}>
                               · {post.category.name}
                             </span>
                           )}
@@ -170,7 +170,7 @@ export function WeekCalendar({
                         )}
                         <div
                           className={`flex gap-1.5 pt-0.5 text-[11px] ${
-                            isPersonal ? 'text-personal-700' : 'text-brand-700'
+                            isPersonal ? 'text-personal-700' : 'text-neutral-700'
                           }`}
                           onClick={(e) => e.stopPropagation()}
                         >
@@ -188,7 +188,7 @@ export function WeekCalendar({
                           <button
                             onClick={() => onDelete(post)}
                             title="Elimina"
-                            className={isPersonal ? 'text-personal-800' : 'text-brand-800'}
+                            className={isPersonal ? 'text-personal-800' : 'text-neutral-900'}
                           >
                             ✕
                           </button>

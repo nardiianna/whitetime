@@ -39,12 +39,12 @@ export function CategoryForm({ pageId, category, onSaved, onCancel, onDelete }: 
         value={name}
         onChange={(e) => setName(e.target.value)}
         placeholder="Nome categoria…"
-        className="rounded-lg border border-brand-200 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
+        className="rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-neutral-500 focus:ring-2 focus:ring-neutral-200"
       />
       <button
         type="submit"
         disabled={saving}
-        className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white shadow-sm shadow-brand-300/60 hover:bg-brand-600 disabled:opacity-50"
+        className="rounded-lg bg-neutral-900 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-neutral-800 disabled:opacity-50"
       >
         Salva
       </button>
@@ -56,7 +56,7 @@ export function CategoryForm({ pageId, category, onSaved, onCancel, onDelete }: 
           Elimina
         </button>
       )}
-      {error && <p className="text-sm text-brand-700">{error}</p>}
+      {error && <p className="text-sm text-neutral-700">{error}</p>}
     </form>
   )
 }

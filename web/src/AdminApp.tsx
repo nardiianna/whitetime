@@ -384,8 +384,8 @@ function AdminApp() {
             onClick={() => setSelectedPageId(ALL)}
             className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
               selectedPageId === ALL
-                ? 'bg-brand-500 text-white shadow-sm shadow-brand-300/70'
-                : 'border border-brand-200 bg-white text-neutral-700 hover:bg-brand-50'
+                ? 'bg-neutral-900 text-white shadow-sm '
+                : 'border border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-100'
             }`}
           >
             Tutte
@@ -400,10 +400,10 @@ function AdminApp() {
                     selectedPageId === page.id
                       ? isPersonalPage
                         ? 'bg-personal-500 text-white shadow-sm shadow-personal-300/70'
-                        : 'bg-brand-500 text-white shadow-sm shadow-brand-300/70'
+                        : 'bg-neutral-900 text-white shadow-sm '
                       : isPersonalPage
                         ? 'border border-personal-200 bg-white text-personal-700 hover:bg-personal-50'
-                        : 'border border-brand-200 bg-white text-neutral-700 hover:bg-brand-50'
+                        : 'border border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-100'
                   }`}
                 >
                   {page.name}
@@ -413,7 +413,7 @@ function AdminApp() {
                   className={`rounded-full p-1 text-xs ${
                     isPersonalPage
                       ? 'text-personal-400 hover:text-personal-700'
-                      : 'text-brand-400 hover:text-brand-700'
+                      : 'text-neutral-500 hover:text-neutral-700'
                   }`}
                   title="Modifica cliente"
                   aria-label={`Modifica ${page.name}`}
@@ -425,7 +425,7 @@ function AdminApp() {
           })}
           <button
             onClick={openNewPageForm}
-            className="rounded-full border border-dashed border-brand-300 px-4 py-2 text-sm font-medium text-brand-700 hover:bg-brand-50"
+            className="rounded-full border border-dashed border-neutral-400 px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-100"
           >
             + Cliente
           </button>
@@ -458,10 +458,10 @@ function AdminApp() {
                 selectedCategoryId === ALL
                   ? isPersonalSelected
                     ? 'bg-personal-200 text-neutral-800'
-                    : 'bg-brand-200 text-neutral-800'
+                    : 'bg-neutral-300 text-neutral-800'
                   : isPersonalSelected
                     ? 'border border-personal-100 bg-white text-personal-600 hover:bg-personal-50'
-                    : 'border border-brand-100 bg-white text-brand-600 hover:bg-brand-50'
+                    : 'border border-neutral-200 bg-white text-neutral-800 hover:bg-neutral-100'
               }`}
             >
               Tutte le categorie
@@ -474,10 +474,10 @@ function AdminApp() {
                     selectedCategoryId === category.id
                       ? isPersonalSelected
                         ? 'bg-personal-200 text-neutral-800'
-                        : 'bg-brand-200 text-neutral-800'
+                        : 'bg-neutral-300 text-neutral-800'
                       : isPersonalSelected
                         ? 'border border-personal-100 bg-white text-personal-600 hover:bg-personal-50'
-                        : 'border border-brand-100 bg-white text-brand-600 hover:bg-brand-50'
+                        : 'border border-neutral-200 bg-white text-neutral-800 hover:bg-neutral-100'
                   }`}
                 >
                   {category.name}
@@ -487,7 +487,7 @@ function AdminApp() {
                   className={`rounded-full p-1 text-xs ${
                     isPersonalSelected
                       ? 'text-personal-300 hover:text-personal-600'
-                      : 'text-brand-300 hover:text-brand-600'
+                      : 'text-neutral-400 hover:text-neutral-800'
                   }`}
                   title="Modifica categoria"
                   aria-label={`Modifica ${category.name}`}
@@ -515,7 +515,7 @@ function AdminApp() {
             ) : (
               <button
                 onClick={openNewCategoryForm}
-                className="rounded-full border border-dashed border-brand-200 px-3 py-1.5 text-xs font-medium text-brand-600 hover:bg-brand-50"
+                className="rounded-full border border-dashed border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-800 hover:bg-neutral-100"
               >
                 + Categoria
               </button>
@@ -524,11 +524,11 @@ function AdminApp() {
         )}
 
         <div className="mb-5 flex flex-wrap items-center justify-between gap-2">
-          <div className="flex gap-1 rounded-full border border-brand-100 bg-white p-1 shadow-sm shadow-brand-100/60">
+          <div className="flex gap-1 rounded-full border border-neutral-200 bg-white p-1 shadow-sm">
             <button
               onClick={() => setViewMode('calendar')}
               className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
-                viewMode === 'calendar' ? 'bg-brand-500 text-white shadow-sm shadow-brand-300/70' : 'text-neutral-600 hover:bg-brand-50'
+                viewMode === 'calendar' ? 'bg-neutral-900 text-white shadow-sm ' : 'text-neutral-600 hover:bg-neutral-100'
               }`}
             >
               Settimana
@@ -536,7 +536,7 @@ function AdminApp() {
             <button
               onClick={() => setViewMode('month')}
               className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
-                viewMode === 'month' ? 'bg-brand-500 text-white shadow-sm shadow-brand-300/70' : 'text-neutral-600 hover:bg-brand-50'
+                viewMode === 'month' ? 'bg-neutral-900 text-white shadow-sm ' : 'text-neutral-600 hover:bg-neutral-100'
               }`}
             >
               Mese
@@ -544,7 +544,7 @@ function AdminApp() {
             <button
               onClick={() => setViewMode('list')}
               className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
-                viewMode === 'list' ? 'bg-brand-500 text-white shadow-sm shadow-brand-300/70' : 'text-neutral-600 hover:bg-brand-50'
+                viewMode === 'list' ? 'bg-neutral-900 text-white shadow-sm ' : 'text-neutral-600 hover:bg-neutral-100'
               }`}
             >
               Elenco
@@ -554,11 +554,11 @@ function AdminApp() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Cerca nei post…"
-            className="min-w-0 flex-1 rounded-full border border-brand-200 bg-white px-4 py-2 text-sm text-neutral-800 outline-none transition-colors focus:border-brand-400 focus:ring-2 focus:ring-brand-100 sm:max-w-xs"
+            className="min-w-0 flex-1 rounded-full border border-neutral-300 bg-white px-4 py-2 text-sm text-neutral-800 outline-none transition-colors focus:border-neutral-500 focus:ring-2 focus:ring-neutral-200 sm:max-w-xs"
           />
           <button
             onClick={() => openNewPost()}
-            className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white shadow-sm shadow-brand-300/60 hover:bg-brand-600"
+            className="rounded-lg bg-neutral-900 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-neutral-800"
           >
             {isPersonalSelected ? '+ Nuovo evento' : '+ Nuovo post'}
           </button>

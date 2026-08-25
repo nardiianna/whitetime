@@ -124,7 +124,7 @@ export function PostForm({ pages, defaultPageId, post, defaultScheduledAt, onSav
   return (
     <form
       onSubmit={handleSubmit}
-      className="space-y-4 rounded-2xl border border-brand-100 bg-white p-5 shadow-sm shadow-brand-100/50"
+      className="space-y-4 rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm"
     >
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1">
@@ -132,7 +132,7 @@ export function PostForm({ pages, defaultPageId, post, defaultScheduledAt, onSav
           <select
             value={pageId}
             onChange={(e) => handlePageChange(e.target.value)}
-            className="w-full rounded-lg border border-brand-200 bg-white px-3 py-2.5 text-sm text-neutral-800 outline-none transition-colors focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
+            className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2.5 text-sm text-neutral-800 outline-none transition-colors focus:border-neutral-500 focus:ring-2 focus:ring-neutral-200"
           >
             {pages.map((p) => (
               <option key={p.id} value={p.id}>
@@ -150,7 +150,7 @@ export function PostForm({ pages, defaultPageId, post, defaultScheduledAt, onSav
             required
             value={scheduledAt}
             onChange={(e) => setScheduledAt(e.target.value)}
-            className="w-full rounded-lg border border-brand-200 bg-white px-3 py-2.5 text-sm text-neutral-800 outline-none transition-colors focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
+            className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2.5 text-sm text-neutral-800 outline-none transition-colors focus:border-neutral-500 focus:ring-2 focus:ring-neutral-200"
           />
         </div>
       </div>
@@ -161,7 +161,7 @@ export function PostForm({ pages, defaultPageId, post, defaultScheduledAt, onSav
           <select
             value={categoryId}
             onChange={(e) => setCategoryId(e.target.value)}
-            className="w-full rounded-lg border border-brand-200 bg-white px-3 py-2.5 text-sm text-neutral-800 outline-none transition-colors focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
+            className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2.5 text-sm text-neutral-800 outline-none transition-colors focus:border-neutral-500 focus:ring-2 focus:ring-neutral-200"
           >
             <option value="">— nessuna —</option>
             {categories.map((c) => (
@@ -179,7 +179,7 @@ export function PostForm({ pages, defaultPageId, post, defaultScheduledAt, onSav
           value={caption}
           onChange={(e) => setCaption(e.target.value)}
           rows={4}
-          className="w-full rounded-lg border border-brand-200 bg-white px-3 py-2.5 text-sm text-neutral-800 outline-none transition-colors focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
+          className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2.5 text-sm text-neutral-800 outline-none transition-colors focus:border-neutral-500 focus:ring-2 focus:ring-neutral-200"
         />
       </div>
 
@@ -194,7 +194,7 @@ export function PostForm({ pages, defaultPageId, post, defaultScheduledAt, onSav
                   <button
                     type="button"
                     onClick={() => removeExisting(path)}
-                    className="absolute -right-2 -top-2 rounded-full bg-brand-700 p-1 text-white shadow-sm"
+                    className="absolute -right-2 -top-2 rounded-full bg-neutral-700 p-1 text-white shadow-sm"
                   >
                     <X className="h-3 w-3" />
                   </button>
@@ -210,7 +210,7 @@ export function PostForm({ pages, defaultPageId, post, defaultScheduledAt, onSav
                   <button
                     type="button"
                     onClick={() => removeNewFile(i)}
-                    className="absolute -right-2 -top-2 rounded-full bg-brand-700 p-1 text-white shadow-sm"
+                    className="absolute -right-2 -top-2 rounded-full bg-neutral-700 p-1 text-white shadow-sm"
                   >
                     <X className="h-3 w-3" />
                   </button>
@@ -218,7 +218,7 @@ export function PostForm({ pages, defaultPageId, post, defaultScheduledAt, onSav
               ))}
             </div>
           )}
-          <label className="flex cursor-pointer items-center justify-center rounded-lg border border-dashed border-brand-300 bg-brand-50/40 px-3 py-2.5 text-sm text-brand-600 hover:bg-brand-50">
+          <label className="flex cursor-pointer items-center justify-center rounded-lg border border-dashed border-neutral-400 bg-neutral-100/40 px-3 py-2.5 text-sm text-neutral-800 hover:bg-neutral-100">
             {preparingFiles ? 'Elaborazione…' : 'Carica immagini'}
             <input
               type="file"
@@ -241,7 +241,7 @@ export function PostForm({ pages, defaultPageId, post, defaultScheduledAt, onSav
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value as PostStatus)}
-            className="w-full rounded-lg border border-brand-200 bg-white px-3 py-2.5 text-sm text-neutral-800 outline-none transition-colors focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
+            className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2.5 text-sm text-neutral-800 outline-none transition-colors focus:border-neutral-500 focus:ring-2 focus:ring-neutral-200"
           >
             {(Object.keys(STATUS_LABELS) as PostStatus[]).map((value) => (
               <option key={value} value={value}>
@@ -255,25 +255,25 @@ export function PostForm({ pages, defaultPageId, post, defaultScheduledAt, onSav
           <input
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            className="w-full rounded-lg border border-brand-200 bg-white px-3 py-2.5 text-sm text-neutral-800 outline-none transition-colors focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
+            className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2.5 text-sm text-neutral-800 outline-none transition-colors focus:border-neutral-500 focus:ring-2 focus:ring-neutral-200"
           />
         </div>
       </div>
 
-      {error && <p className="text-sm text-brand-700">{error}</p>}
+      {error && <p className="text-sm text-neutral-700">{error}</p>}
 
-      <div className="flex justify-end gap-2 border-t border-brand-100 pt-4">
+      <div className="flex justify-end gap-2 border-t border-neutral-200 pt-4">
         <button
           type="button"
           onClick={onCancel}
-          className="rounded-lg border border-brand-200 px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-brand-50"
+          className="rounded-lg border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-100"
         >
           Annulla
         </button>
         <button
           type="submit"
           disabled={saving || preparingFiles}
-          className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white shadow-sm shadow-brand-300/60 hover:bg-brand-600 disabled:opacity-50"
+          className="rounded-lg bg-neutral-900 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-neutral-800 disabled:opacity-50"
         >
           {saving ? 'Salvataggio…' : 'Salva'}
         </button>

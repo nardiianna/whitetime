@@ -95,13 +95,13 @@ export function ClientAccessForm({ pageId }: Props) {
   }
 
   return (
-    <div className="space-y-3 rounded-2xl border border-brand-100 bg-white p-5 shadow-sm shadow-brand-100/50">
+    <div className="space-y-3 rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
       <div className="flex items-center gap-3">
-        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-50 text-brand-600">
+        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-neutral-100 text-neutral-800">
           <KeyRound className="h-5 w-5" />
         </div>
         <div>
-          <p className="text-sm font-semibold text-brand-600">Accessi cliente</p>
+          <p className="text-sm font-semibold text-neutral-800">Accessi cliente</p>
           <p className="text-xs text-neutral-500">
             Crea l'utente da Supabase Dashboard → Authentication → Users, poi incolla qui il suo UID. Lo stesso UID
             può essere collegato a più aziende: il cliente sceglierà quale vedere al login.
@@ -112,7 +112,7 @@ export function ClientAccessForm({ pageId }: Props) {
       {profileIds.length > 0 && (
         <ul className="space-y-1.5">
           {profileIds.map((id) => (
-            <li key={id} className="flex items-center gap-2 rounded-lg bg-brand-50/50 px-3 py-2 text-sm">
+            <li key={id} className="flex items-center gap-2 rounded-lg bg-neutral-100/50 px-3 py-2 text-sm">
               <span className="flex-1 truncate font-mono text-xs text-neutral-700">{id}</span>
               <button onClick={() => handleRemove(id)} className="text-xs font-medium text-red-700 hover:underline">
                 Revoca
@@ -127,17 +127,17 @@ export function ClientAccessForm({ pageId }: Props) {
           value={uid}
           onChange={(e) => setUid(e.target.value)}
           placeholder="UID utente Supabase…"
-          className="flex-1 rounded-lg border border-brand-200 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
+          className="flex-1 rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-neutral-500 focus:ring-2 focus:ring-neutral-200"
         />
         <button
           type="submit"
           disabled={saving}
-          className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white shadow-sm shadow-brand-300/60 hover:bg-brand-600 disabled:opacity-50"
+          className="rounded-lg bg-neutral-900 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-neutral-800 disabled:opacity-50"
         >
           Collega
         </button>
       </form>
-      {error && <p className="text-sm text-brand-700">{error}</p>}
+      {error && <p className="text-sm text-neutral-700">{error}</p>}
     </div>
   )
 }

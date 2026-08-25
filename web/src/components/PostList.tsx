@@ -10,11 +10,11 @@ interface Props {
 }
 
 const STATUS_STYLES: Record<string, string> = {
-  idea: 'bg-white text-brand-600 border border-brand-200',
-  da_fare: 'bg-brand-50 text-brand-600',
-  programmato: 'bg-brand-100 text-brand-700',
-  promemoria_inviato: 'bg-brand-200 text-brand-800',
-  pubblicato: 'bg-brand-300 text-neutral-800 font-medium',
+  idea: 'bg-white text-neutral-800 border border-neutral-300',
+  da_fare: 'bg-neutral-100 text-neutral-800',
+  programmato: 'bg-neutral-200 text-neutral-700',
+  promemoria_inviato: 'bg-neutral-300 text-neutral-900',
+  pubblicato: 'bg-neutral-400 text-neutral-800 font-medium',
 }
 
 const STATUS_STYLES_PERSONAL: Record<string, string> = {
@@ -42,7 +42,7 @@ export function PostList({ posts, onEdit, onDelete, onMarkPublished, onDuplicate
           <li
             key={post.id}
             className={`flex flex-col gap-3 rounded-xl border bg-white p-4 shadow-sm transition-colors sm:flex-row sm:items-center ${
-              isPersonal ? 'border-personal-100 hover:border-personal-300' : 'border-brand-100 hover:border-brand-300'
+              isPersonal ? 'border-personal-100 hover:border-personal-300' : 'border-neutral-200 hover:border-neutral-400'
             }`}
           >
             <div className="min-w-0 flex-1">
@@ -69,7 +69,7 @@ export function PostList({ posts, onEdit, onDelete, onMarkPublished, onDuplicate
                 {post.category?.name && (
                   <span
                     className={`rounded-full px-2 py-0.5 text-xs ${
-                      isPersonal ? 'bg-personal-50 text-personal-600' : 'bg-brand-50 text-brand-600'
+                      isPersonal ? 'bg-personal-50 text-personal-600' : 'bg-neutral-100 text-neutral-800'
                     }`}
                   >
                     {post.category.name}
@@ -93,7 +93,7 @@ export function PostList({ posts, onEdit, onDelete, onMarkPublished, onDuplicate
                 <button
                   onClick={() => onMarkPublished(post)}
                   className={`rounded-md border px-2 py-1 text-xs ${
-                    isPersonal ? 'border-personal-200 text-personal-700' : 'border-brand-200 text-brand-700'
+                    isPersonal ? 'border-personal-200 text-personal-700' : 'border-neutral-300 text-neutral-700'
                   }`}
                 >
                   {isPersonal ? 'Segna fatto' : 'Segna pubblicato'}
@@ -102,7 +102,7 @@ export function PostList({ posts, onEdit, onDelete, onMarkPublished, onDuplicate
               <button
                 onClick={() => onEdit(post)}
                 className={`rounded-md border px-2 py-1 text-xs ${
-                  isPersonal ? 'border-personal-200 text-personal-700' : 'border-brand-200 text-brand-700'
+                  isPersonal ? 'border-personal-200 text-personal-700' : 'border-neutral-300 text-neutral-700'
                 }`}
               >
                 Modifica
@@ -110,7 +110,7 @@ export function PostList({ posts, onEdit, onDelete, onMarkPublished, onDuplicate
               <button
                 onClick={() => onDuplicate(post)}
                 className={`rounded-md border px-2 py-1 text-xs ${
-                  isPersonal ? 'border-personal-200 text-personal-700' : 'border-brand-200 text-brand-700'
+                  isPersonal ? 'border-personal-200 text-personal-700' : 'border-neutral-300 text-neutral-700'
                 }`}
               >
                 Duplica
@@ -118,7 +118,7 @@ export function PostList({ posts, onEdit, onDelete, onMarkPublished, onDuplicate
               <button
                 onClick={() => onDelete(post)}
                 className={`rounded-md border px-2 py-1 text-xs ${
-                  isPersonal ? 'border-personal-300 text-personal-800' : 'border-brand-300 text-brand-800'
+                  isPersonal ? 'border-personal-300 text-personal-800' : 'border-neutral-400 text-neutral-900'
                 }`}
               >
                 Elimina

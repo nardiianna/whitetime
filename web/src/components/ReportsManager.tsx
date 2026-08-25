@@ -49,18 +49,18 @@ export function ReportsManager({ pageId }: Props) {
   }
 
   return (
-    <div className="space-y-4 rounded-2xl border border-brand-100 bg-white p-5 shadow-sm shadow-brand-100/50">
+    <div className="space-y-4 rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-50 text-brand-600">
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-neutral-100 text-neutral-800">
             <BarChart3 className="h-5 w-5" />
           </div>
-          <h3 className="text-base font-semibold text-brand-600">Dashboard campagne</h3>
+          <h3 className="text-base font-semibold text-neutral-800">Dashboard campagne</h3>
         </div>
         {!showForm && (
           <button
             onClick={openNew}
-            className="flex items-center gap-1.5 rounded-full border border-dashed border-brand-300 px-3 py-1.5 text-xs font-medium text-brand-700 hover:bg-brand-50"
+            className="flex items-center gap-1.5 rounded-full border border-dashed border-neutral-400 px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-100"
           >
             <Plus className="h-3.5 w-3.5" />
             Nuovo report
@@ -95,13 +95,13 @@ export function ReportsManager({ pageId }: Props) {
             <li
               key={report.id}
               onClick={() => openEdit(report)}
-              className="cursor-pointer space-y-3 rounded-xl border border-brand-100 p-4 transition-colors hover:border-brand-300 hover:bg-brand-50/40"
+              className="cursor-pointer space-y-3 rounded-xl border border-neutral-200 p-4 transition-colors hover:border-neutral-400 hover:bg-neutral-100/40"
             >
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div>
                   <p className="font-semibold text-neutral-900">{report.campaign_name}</p>
                   {report.campaign_objective && (
-                    <p className="text-xs text-brand-600">{report.campaign_objective}</p>
+                    <p className="text-xs text-neutral-800">{report.campaign_objective}</p>
                   )}
                 </div>
                 <div className="flex items-center gap-2">
@@ -117,7 +117,7 @@ export function ReportsManager({ pageId }: Props) {
                       e.stopPropagation()
                       handleDelete(report)
                     }}
-                    className="shrink-0 rounded-full border border-brand-200 px-3 py-1 text-xs font-medium text-brand-700 hover:bg-brand-50"
+                    className="shrink-0 rounded-full border border-neutral-300 px-3 py-1 text-xs font-medium text-neutral-700 hover:bg-neutral-100"
                   >
                     Elimina
                   </button>
@@ -125,7 +125,7 @@ export function ReportsManager({ pageId }: Props) {
               </div>
 
               {(report.spend != null || report.custom_metrics.length > 0) && (
-                <div className="grid grid-cols-2 gap-x-4 gap-y-2 border-t border-brand-100 pt-3 text-sm sm:grid-cols-4">
+                <div className="grid grid-cols-2 gap-x-4 gap-y-2 border-t border-neutral-200 pt-3 text-sm sm:grid-cols-4">
                   {report.spend != null && (
                     <div>
                       <p className="text-xs text-neutral-500">Spesa</p>
