@@ -1,11 +1,13 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { supabase } from './lib/supabase'
 import { PostForm } from './components/PostForm'
 import { WeekCalendar } from './components/WeekCalendar'
+import { MonthCalendar } from './components/MonthCalendar'
 import { PostList } from './components/PostList'
 import { IdeasBank } from './components/IdeasBank'
 import { PageForm } from './components/PageForm'
 import { CategoryForm } from './components/CategoryForm'
+import { errorMessage, useToast, UNDO_DELAY_MS } from './lib/toast'
 import type { Page, Post, ContentIdea, Category } from './types'
 
 const ALL = 'all'
@@ -25,12 +27,32 @@ function addDays(date: Date, days: number) {
   return d
 }
 
+function getMonthStart(date: Date) {
+  return new Date(date.getFullYear(), date.getMonth(), 1)
+}
+
+function addMonths(date: Date, months: number) {
+  return new Date(date.getFullYear(), date.getMonth() + months, 1)
+}
+
 function toDateInputDefault(date: Date) {
   const pad = (n: number) => String(n).padStart(2, '0')
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T09:00`
 }
 
+function matchesSearch(post: Post, query: string) {
+  const q = query.trim().toLowerCase()
+  if (!q) return true
+  return (
+    post.caption.toLowerCase().includes(q) ||
+    (post.notes ?? '').toLowerCase().includes(q) ||
+    (post.page?.name ?? '').toLowerCase().includes(q) ||
+    (post.category?.name ?? '').toLowerCase().includes(q)
+  )
+}
+
 function AdminApp() {
+  const toast = useToast()
   const [pages, setPages] = useState<Page[]>([])
   const [selectedPageId, setSelectedPageId] = useState<string>(ALL)
   const [categories, setCategories] = useState<Category[]>([])
@@ -45,12 +67,30 @@ function AdminApp() {
   const [showCategoryForm, setShowCategoryForm] = useState(false)
   const [editingCategory, setEditingCategory] = useState<Category | undefined>(undefined)
   const [weekStart, setWeekStart] = useState(() => getMonday(new Date()))
-  const [viewMode, setViewMode] = useState<'calendar' | 'list'>('calendar')
+  const [monthStart, setMonthStart] = useState(() => getMonthStart(new Date()))
+  const [viewMode, setViewMode] = useState<'calendar' | 'month' | 'list'>('calendar')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [failedReminders, setFailedReminders] = useState<Post[]>([])
+
+  const [pendingDeletePostIds, setPendingDeletePostIds] = useState<Set<string>>(new Set())
+  const [pendingDeletePageIds, setPendingDeletePageIds] = useState<Set<string>>(new Set())
+  const pendingTimers = useRef(new Map<string, ReturnType<typeof setTimeout>>())
+  const duplicatingIds = useRef(new Set<string>())
+
+  useEffect(() => {
+    return () => {
+      pendingTimers.current.forEach((timer) => clearTimeout(timer))
+    }
+  }, [])
 
   const loadPages = useCallback(async () => {
-    const { data } = await supabase.from('pages').select('*').order('name')
+    const { data, error } = await supabase.from('pages').select('*').order('name')
+    if (error) {
+      toast.error(errorMessage(error))
+      return
+    }
     setPages(data ?? [])
-  }, [])
+  }, [toast])
 
   const loadPosts = useCallback(async () => {
     let query = supabase
@@ -59,9 +99,22 @@ function AdminApp() {
       .order('scheduled_at')
     if (selectedPageId !== ALL) query = query.eq('page_id', selectedPageId)
     if (selectedCategoryId !== ALL) query = query.eq('category_id', selectedCategoryId)
-    const { data } = await query
+    const { data, error } = await query
+    if (error) {
+      toast.error(errorMessage(error))
+      return
+    }
     setPosts(data ?? [])
-  }, [selectedPageId, selectedCategoryId])
+  }, [selectedPageId, selectedCategoryId, toast])
+
+  const loadFailedReminders = useCallback(async () => {
+    const { data } = await supabase
+      .from('posts')
+      .select('*, category:categories(name), page:pages(name, type)')
+      .not('reminder_error', 'is', null)
+      .order('scheduled_at')
+    setFailedReminders(data ?? [])
+  }, [])
 
   const loadIdeas = useCallback(async () => {
     if (selectedPageId === ALL) {
@@ -91,7 +144,8 @@ function AdminApp() {
 
   useEffect(() => {
     loadPages()
-  }, [loadPages])
+    loadFailedReminders()
+  }, [loadPages, loadFailedReminders])
 
   useEffect(() => {
     setSelectedCategoryId(ALL)
@@ -103,57 +157,97 @@ function AdminApp() {
     loadCategories()
   }, [loadPosts, loadIdeas, loadCategories])
 
-  async function handleDelete(post: Post) {
-    if (!confirm('Eliminare questo post?')) return
-    if (post.media_paths.length > 0) {
-      const { error } = await supabase.storage.from('media').remove(post.media_paths)
-      if (error) console.error('Failed to delete media', error)
-    }
-    await supabase.from('posts').delete().eq('id', post.id)
-    loadPosts()
+  function scheduleDelete<T extends { id: string }>(
+    item: T,
+    label: string,
+    idSet: React.Dispatch<React.SetStateAction<Set<string>>>,
+    commit: () => Promise<void>,
+  ) {
+    idSet((prev) => new Set(prev).add(item.id))
+    const timer = setTimeout(async () => {
+      pendingTimers.current.delete(item.id)
+      idSet((prev) => {
+        const next = new Set(prev)
+        next.delete(item.id)
+        return next
+      })
+      await commit()
+    }, UNDO_DELAY_MS)
+    pendingTimers.current.set(item.id, timer)
+    toast.undo(label, () => {
+      clearTimeout(timer)
+      pendingTimers.current.delete(item.id)
+      idSet((prev) => {
+        const next = new Set(prev)
+        next.delete(item.id)
+        return next
+      })
+    })
+  }
+
+  function handleDelete(post: Post) {
+    scheduleDelete(post, `"${post.caption.trim().slice(0, 30) || 'Post senza caption'}" eliminato`, setPendingDeletePostIds, async () => {
+      if (post.media_paths.length > 0) {
+        const { error } = await supabase.storage.from('media').remove(post.media_paths)
+        if (error) toast.error('Alcuni file media non sono stati cancellati dallo storage')
+      }
+      const { error } = await supabase.from('posts').delete().eq('id', post.id)
+      if (error) toast.error(errorMessage(error))
+      loadPosts()
+    })
   }
 
   async function handleMarkPublished(post: Post) {
-    await supabase.from('posts').update({ status: 'pubblicato' }).eq('id', post.id)
+    const { error } = await supabase.from('posts').update({ status: 'pubblicato' }).eq('id', post.id)
+    if (error) {
+      toast.error(errorMessage(error))
+      return
+    }
     loadPosts()
   }
 
   async function handleDuplicate(post: Post) {
-    const mediaPaths: string[] = []
-    for (const path of post.media_paths) {
-      const newPath = `${post.page_id}/${crypto.randomUUID()}-${path.split('/').pop()}`
-      const { error } = await supabase.storage.from('media').copy(path, newPath)
-      if (error) {
-        console.error('Failed to copy media', error)
-        continue
+    if (duplicatingIds.current.has(post.id)) return
+    duplicatingIds.current.add(post.id)
+    try {
+      const mediaPaths: string[] = []
+      for (const path of post.media_paths) {
+        const newPath = `${post.page_id}/${crypto.randomUUID()}-${path.split('/').pop()}`
+        const { error } = await supabase.storage.from('media').copy(path, newPath)
+        if (error) {
+          toast.error('Impossibile copiare uno dei file media')
+          continue
+        }
+        mediaPaths.push(newPath)
       }
-      mediaPaths.push(newPath)
+
+      const scheduledAt = new Date(post.scheduled_at)
+      scheduledAt.setDate(scheduledAt.getDate() + 7)
+
+      const { data, error } = await supabase
+        .from('posts')
+        .insert({
+          page_id: post.page_id,
+          category_id: post.category_id,
+          caption: post.caption,
+          media_paths: mediaPaths,
+          scheduled_at: scheduledAt.toISOString(),
+          status: 'da_fare',
+          notes: post.notes,
+        })
+        .select('*, category:categories(name), page:pages(name, type)')
+        .single()
+
+      if (error) {
+        toast.error(errorMessage(error))
+        return
+      }
+
+      await loadPosts()
+      if (data) openEditPost(data)
+    } finally {
+      duplicatingIds.current.delete(post.id)
     }
-
-    const scheduledAt = new Date(post.scheduled_at)
-    scheduledAt.setDate(scheduledAt.getDate() + 7)
-
-    const { data, error } = await supabase
-      .from('posts')
-      .insert({
-        page_id: post.page_id,
-        category_id: post.category_id,
-        caption: post.caption,
-        media_paths: mediaPaths,
-        scheduled_at: scheduledAt.toISOString(),
-        status: 'da_fare',
-        notes: post.notes,
-      })
-      .select('*, category:categories(name), page:pages(name, type)')
-      .single()
-
-    if (error) {
-      console.error('Failed to duplicate post', error)
-      return
-    }
-
-    await loadPosts()
-    if (data) openEditPost(data)
   }
 
   function openNewPageForm() {
@@ -166,27 +260,30 @@ function AdminApp() {
     setShowPageForm(true)
   }
 
-  async function handlePageDelete(page: Page) {
+  function handlePageDelete(page: Page) {
     if (
       !confirm(
-        `Eliminare il cliente "${page.name}"? Verranno eliminati anche tutti i suoi post e le idee salvate. Azione irreversibile.`,
+        `Eliminare il cliente "${page.name}"? Verranno eliminati anche tutti i suoi post e le idee salvate. Puoi annullare entro pochi secondi.`,
       )
     )
       return
 
-    const { data: pagePosts } = await supabase.from('posts').select('media_paths').eq('page_id', page.id)
-    const mediaToRemove = (pagePosts ?? []).flatMap((p) => p.media_paths ?? [])
-    if (mediaToRemove.length > 0) {
-      const { error } = await supabase.storage.from('media').remove(mediaToRemove)
-      if (error) console.error('Failed to delete media for page', error)
-    }
-
-    await supabase.from('pages').delete().eq('id', page.id)
     setShowPageForm(false)
     setEditingPage(undefined)
     if (selectedPageId === page.id) setSelectedPageId(ALL)
-    loadPages()
-    loadPosts()
+
+    scheduleDelete(page, `Cliente "${page.name}" eliminato`, setPendingDeletePageIds, async () => {
+      const { data: pagePosts } = await supabase.from('posts').select('media_paths').eq('page_id', page.id)
+      const mediaToRemove = (pagePosts ?? []).flatMap((p) => p.media_paths ?? [])
+      if (mediaToRemove.length > 0) {
+        const { error } = await supabase.storage.from('media').remove(mediaToRemove)
+        if (error) toast.error('Alcuni file media del cliente non sono stati cancellati dallo storage')
+      }
+      const { error } = await supabase.from('pages').delete().eq('id', page.id)
+      if (error) toast.error(errorMessage(error))
+      loadPages()
+      loadPosts()
+    })
   }
 
   function openNewCategoryForm() {
@@ -204,11 +301,25 @@ function AdminApp() {
       !confirm(`Eliminare la categoria "${category.name}"? I post con questa categoria resteranno, senza categoria.`)
     )
       return
-    await supabase.from('categories').delete().eq('id', category.id)
+    const { error } = await supabase.from('categories').delete().eq('id', category.id)
+    if (error) {
+      toast.error(errorMessage(error))
+      return
+    }
     setShowCategoryForm(false)
     setEditingCategory(undefined)
     if (selectedCategoryId === category.id) setSelectedCategoryId(ALL)
     loadCategories()
+    loadPosts()
+  }
+
+  async function dismissFailedReminder(post: Post) {
+    const { error } = await supabase.from('posts').update({ reminder_error: null }).eq('id', post.id)
+    if (error) {
+      toast.error(errorMessage(error))
+      return
+    }
+    loadFailedReminders()
     loadPosts()
   }
 
@@ -223,11 +334,51 @@ function AdminApp() {
     setShowForm(true)
   }
 
+  function goToWeekOf(date: Date) {
+    setWeekStart(getMonday(date))
+    setViewMode('calendar')
+  }
+
+  const visiblePages = pages.filter((p) => !pendingDeletePageIds.has(p.id))
+  const visiblePosts = posts.filter((p) => !pendingDeletePostIds.has(p.id) && matchesSearch(p, searchQuery))
+
   const selectedPage = pages.find((p) => p.id === selectedPageId)
   const isPersonalSelected = selectedPage?.type === 'personal'
 
   return (
     <>
+        {failedReminders.length > 0 && (
+          <div className="mb-5 space-y-1.5 rounded-xl border border-red-200 bg-red-50 p-3">
+            <p className="text-sm font-semibold text-red-800">
+              ⚠️ {failedReminders.length} promemoria Telegram non {failedReminders.length === 1 ? 'inviato' : 'inviati'}
+            </p>
+            <ul className="space-y-1">
+              {failedReminders.map((post) => (
+                <li key={post.id} className="flex flex-wrap items-center gap-2 text-xs text-red-700">
+                  <span className="font-medium">{post.page?.name ?? 'Cliente'}</span>
+                  <span>
+                    {new Date(post.scheduled_at).toLocaleString('it-IT', {
+                      day: '2-digit',
+                      month: '2-digit',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                  </span>
+                  <span className="truncate text-red-600" title={post.reminder_error ?? ''}>
+                    {post.reminder_error}
+                  </span>
+                  <button onClick={() => openEditPost(post)} className="font-medium underline">
+                    Apri
+                  </button>
+                  <button onClick={() => dismissFailedReminder(post)} className="font-medium underline">
+                    Ignora
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         <div className="mb-5 flex flex-wrap gap-2">
           <button
             onClick={() => setSelectedPageId(ALL)}
@@ -239,7 +390,7 @@ function AdminApp() {
           >
             Tutte
           </button>
-          {pages.map((page) => {
+          {visiblePages.map((page) => {
             const isPersonalPage = page.type === 'personal'
             return (
               <div key={page.id} className="flex items-center gap-0.5">
@@ -372,7 +523,7 @@ function AdminApp() {
           </div>
         )}
 
-        <div className="mb-5 flex items-center justify-between gap-2">
+        <div className="mb-5 flex flex-wrap items-center justify-between gap-2">
           <div className="flex gap-1 rounded-full border border-brand-100 bg-white p-1 shadow-sm shadow-brand-100/60">
             <button
               onClick={() => setViewMode('calendar')}
@@ -380,7 +531,15 @@ function AdminApp() {
                 viewMode === 'calendar' ? 'bg-brand-500 text-white shadow-sm shadow-brand-300/70' : 'text-neutral-600 hover:bg-brand-50'
               }`}
             >
-              Calendario
+              Settimana
+            </button>
+            <button
+              onClick={() => setViewMode('month')}
+              className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                viewMode === 'month' ? 'bg-brand-500 text-white shadow-sm shadow-brand-300/70' : 'text-neutral-600 hover:bg-brand-50'
+              }`}
+            >
+              Mese
             </button>
             <button
               onClick={() => setViewMode('list')}
@@ -391,6 +550,12 @@ function AdminApp() {
               Elenco
             </button>
           </div>
+          <input
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Cerca nei post…"
+            className="min-w-0 flex-1 rounded-full border border-brand-200 bg-white px-4 py-2 text-sm text-neutral-800 outline-none transition-colors focus:border-brand-400 focus:ring-2 focus:ring-brand-100 sm:max-w-xs"
+          />
           <button
             onClick={() => openNewPost()}
             className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white shadow-sm shadow-brand-300/60 hover:bg-brand-600"
@@ -415,9 +580,9 @@ function AdminApp() {
           </div>
         )}
 
-        {viewMode === 'calendar' ? (
+        {viewMode === 'calendar' && (
           <WeekCalendar
-            posts={posts}
+            posts={visiblePosts}
             weekStart={weekStart}
             onPrevWeek={() => setWeekStart((prev) => addDays(prev, -7))}
             onNextWeek={() => setWeekStart((prev) => addDays(prev, 7))}
@@ -428,9 +593,23 @@ function AdminApp() {
             onDuplicate={handleDuplicate}
             onQuickAdd={openNewPost}
           />
-        ) : (
+        )}
+
+        {viewMode === 'month' && (
+          <MonthCalendar
+            posts={visiblePosts}
+            monthStart={monthStart}
+            onPrevMonth={() => setMonthStart((prev) => addMonths(prev, -1))}
+            onNextMonth={() => setMonthStart((prev) => addMonths(prev, 1))}
+            onToday={() => setMonthStart(getMonthStart(new Date()))}
+            onDayClick={goToWeekOf}
+            onQuickAdd={openNewPost}
+          />
+        )}
+
+        {viewMode === 'list' && (
           <PostList
-            posts={posts}
+            posts={visiblePosts}
             onEdit={openEditPost}
             onDelete={handleDelete}
             onMarkPublished={handleMarkPublished}

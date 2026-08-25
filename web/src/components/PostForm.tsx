@@ -4,6 +4,8 @@ import { X } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { STATUS_LABELS, statusLabel } from '../types'
 import type { Page, Post, PostStatus, Category } from '../types'
+import { prepareImageFiles } from '../lib/image'
+import { useToast } from '../lib/toast'
 
 interface Props {
   pages: Page[]
@@ -36,6 +38,8 @@ export function PostForm({ pages, defaultPageId, post, defaultScheduledAt, onSav
   const [newFiles, setNewFiles] = useState<File[]>([])
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [preparingFiles, setPreparingFiles] = useState(false)
+  const toast = useToast()
 
   const isPersonal = pages.find((p) => p.id === pageId)?.type === 'personal'
 
@@ -44,10 +48,12 @@ export function PostForm({ pages, defaultPageId, post, defaultScheduledAt, onSav
     url: supabase.storage.from('media').getPublicUrl(path).data.publicUrl,
   }))
 
-  function addFiles(fileList: FileList | null) {
+  async function addFiles(fileList: FileList | null) {
     if (!fileList) return
-    const files = Array.from(fileList)
-    setNewFiles((prev) => [...prev, ...files])
+    setPreparingFiles(true)
+    const ready = await prepareImageFiles(Array.from(fileList), toast.error)
+    setNewFiles((prev) => [...prev, ...ready])
+    setPreparingFiles(false)
   }
 
   function removeExisting(path: string) {
@@ -104,7 +110,7 @@ export function PostForm({ pages, defaultPageId, post, defaultScheduledAt, onSav
 
       if (removedPaths.length > 0) {
         const { error: removeError } = await supabase.storage.from('media').remove(removedPaths)
-        if (removeError) console.error('Failed to delete removed media', removeError)
+        if (removeError) toast.error('Alcune immagini rimosse non sono state cancellate dallo storage')
       }
 
       onSaved()
@@ -213,11 +219,12 @@ export function PostForm({ pages, defaultPageId, post, defaultScheduledAt, onSav
             </div>
           )}
           <label className="flex cursor-pointer items-center justify-center rounded-lg border border-dashed border-brand-300 bg-brand-50/40 px-3 py-2.5 text-sm text-brand-600 hover:bg-brand-50">
-            Carica immagini
+            {preparingFiles ? 'Elaborazione…' : 'Carica immagini'}
             <input
               type="file"
               accept="image/*"
               multiple
+              disabled={preparingFiles}
               onChange={(e) => {
                 addFiles(e.target.files)
                 e.target.value = ''
@@ -265,7 +272,7 @@ export function PostForm({ pages, defaultPageId, post, defaultScheduledAt, onSav
         </button>
         <button
           type="submit"
-          disabled={saving}
+          disabled={saving || preparingFiles}
           className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white shadow-sm shadow-brand-300/60 hover:bg-brand-600 disabled:opacity-50"
         >
           {saving ? 'Salvataggio…' : 'Salva'}

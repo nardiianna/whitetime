@@ -3,6 +3,7 @@ import type { FormEvent } from 'react'
 import { Lightbulb } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import type { ContentIdea } from '../types'
+import { errorMessage, useToast } from '../lib/toast'
 
 interface Props {
   pageId: string
@@ -13,27 +14,40 @@ interface Props {
 export function IdeasBank({ pageId, ideas, onChanged }: Props) {
   const [text, setText] = useState('')
   const [pillar, setPillar] = useState('')
+  const toast = useToast()
 
   async function handleAdd(e: FormEvent) {
     e.preventDefault()
     if (!text.trim()) return
-    await supabase.from('content_ideas').insert({
+    const { error } = await supabase.from('content_ideas').insert({
       page_id: pageId,
       idea_text: text.trim(),
       pillar: pillar.trim() || null,
     })
+    if (error) {
+      toast.error(errorMessage(error))
+      return
+    }
     setText('')
     setPillar('')
     onChanged()
   }
 
   async function toggleUsed(idea: ContentIdea) {
-    await supabase.from('content_ideas').update({ used: !idea.used }).eq('id', idea.id)
+    const { error } = await supabase.from('content_ideas').update({ used: !idea.used }).eq('id', idea.id)
+    if (error) {
+      toast.error(errorMessage(error))
+      return
+    }
     onChanged()
   }
 
   async function remove(idea: ContentIdea) {
-    await supabase.from('content_ideas').delete().eq('id', idea.id)
+    const { error } = await supabase.from('content_ideas').delete().eq('id', idea.id)
+    if (error) {
+      toast.error(errorMessage(error))
+      return
+    }
     onChanged()
   }
 

@@ -4,6 +4,8 @@ import { ImageUp, X } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import type { Page } from '../types'
 import { ClientAccessForm } from './ClientAccessForm'
+import { prepareImageFile } from '../lib/image'
+import { useToast } from '../lib/toast'
 
 interface Props {
   page?: Page
@@ -21,6 +23,8 @@ export function PageForm({ page, onSaved, onCancel, onDelete }: Props) {
   const [newAvatarFile, setNewAvatarFile] = useState<File | null>(null)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [preparingFile, setPreparingFile] = useState(false)
+  const toast = useToast()
 
   const existingAvatarUrl = existingAvatarPath
     ? supabase.storage.from('media').getPublicUrl(existingAvatarPath).data.publicUrl
@@ -57,7 +61,7 @@ export function PageForm({ page, onSaved, onCancel, onDelete }: Props) {
 
       if (removedAvatarPath) {
         const { error: removeError } = await supabase.storage.from('media').remove([removedAvatarPath])
-        if (removeError) console.error('Failed to delete removed avatar', removeError)
+        if (removeError) toast.error("La vecchia foto profilo non è stata cancellata dallo storage")
       }
 
       onSaved()
@@ -119,11 +123,24 @@ export function PageForm({ page, onSaved, onCancel, onDelete }: Props) {
           {!existingAvatarUrl && (
             <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-brand-300 bg-brand-50/40 px-3 py-2 text-sm text-brand-600 hover:bg-brand-50">
               <ImageUp className="h-4 w-4" />
-              Carica foto
+              {preparingFile ? 'Elaborazione…' : 'Carica foto'}
               <input
                 type="file"
                 accept="image/*"
-                onChange={(e) => setNewAvatarFile(e.target.files?.[0] ?? null)}
+                disabled={preparingFile}
+                onChange={async (e) => {
+                  const file = e.target.files?.[0]
+                  e.target.value = ''
+                  if (!file) return
+                  setPreparingFile(true)
+                  try {
+                    setNewAvatarFile(await prepareImageFile(file))
+                  } catch (err) {
+                    toast.error(err instanceof Error ? err.message : 'File non valido')
+                  } finally {
+                    setPreparingFile(false)
+                  }
+                }}
                 className="hidden"
               />
             </label>
@@ -164,7 +181,7 @@ export function PageForm({ page, onSaved, onCancel, onDelete }: Props) {
           </button>
           <button
             type="submit"
-            disabled={saving}
+            disabled={saving || preparingFile}
             className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white shadow-sm shadow-brand-300/60 hover:bg-brand-600 disabled:opacity-50"
           >
             {saving ? 'Salvataggio…' : 'Salva'}

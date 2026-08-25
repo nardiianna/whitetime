@@ -3,6 +3,7 @@ import type { FormEvent } from 'react'
 import { KeyRound } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import type { Profile } from '../types'
+import { errorMessage, useToast } from '../lib/toast'
 
 interface Props {
   pageId: string
@@ -13,6 +14,7 @@ export function ClientAccessForm({ pageId }: Props) {
   const [uid, setUid] = useState('')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const toast = useToast()
 
   const loadProfiles = useCallback(async () => {
     const { data } = await supabase.from('profiles').select('*').eq('page_id', pageId)
@@ -47,7 +49,11 @@ export function ClientAccessForm({ pageId }: Props) {
 
   async function handleRemove(profile: Profile) {
     if (!confirm("Revocare l'accesso di questo utente a questo cliente?")) return
-    await supabase.from('profiles').delete().eq('id', profile.id)
+    const { error } = await supabase.from('profiles').delete().eq('id', profile.id)
+    if (error) {
+      toast.error(errorMessage(error))
+      return
+    }
     loadProfiles()
   }
 

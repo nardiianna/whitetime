@@ -66,7 +66,7 @@ Deno.serve(async () => {
 
   const { data: duePosts, error } = await supabase
     .from("posts")
-    .select("id, caption, media_paths, scheduled_at, page:pages(name), category:categories(name)")
+    .select("id, caption, media_paths, scheduled_at, reminder_error, page:pages(name), category:categories(name)")
     .eq("reminder_sent", false)
     .lte("scheduled_at", windowEnd);
 
@@ -93,7 +93,15 @@ Deno.serve(async () => {
 
     if (sendError) {
       // Leave reminder_sent false so the next cron run retries; surface the failure in the UI.
+      const isNewFailure = !post.reminder_error;
       await supabase.from("posts").update({ reminder_error: sendError }).eq("id", post.id);
+      if (isNewFailure) {
+        // Best-effort plain-text alert so a failure isn't only visible next time someone opens the app.
+        // Sent once per failure episode (not every retry) to avoid spamming Telegram.
+        await sendTelegramMessage(
+          `🚨 <b>Promemoria non inviato</b> — ${pageName} (${time})\n${sendError}\n\nL'app riproverà automaticamente ogni minuto.`,
+        );
+      }
       continue;
     }
 

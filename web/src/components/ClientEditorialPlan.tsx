@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase'
 import { EDITORIAL_STATUS_LABELS } from '../types'
 import type { EditorialPlanItem, Page } from '../types'
 import { addMonths, getMonthStart, isInMonth, monthLabel } from '../lib/date'
+import { errorMessage, useToast } from '../lib/toast'
 
 interface Props {
   pageId: string
@@ -86,11 +87,20 @@ function ApprovalAndNote({ item, onSaved }: { item: EditorialPlanItem; onSaved: 
   const [approved, setApproved] = useState(item.approved)
   const [savingNote, setSavingNote] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [togglingApproval, setTogglingApproval] = useState(false)
+  const toast = useToast()
 
   async function toggleApproved() {
     const next = !approved
     setApproved(next)
-    await supabase.rpc('submit_client_approval', { p_item_id: item.id, p_approved: next })
+    setTogglingApproval(true)
+    const { error } = await supabase.rpc('submit_client_approval', { p_item_id: item.id, p_approved: next })
+    setTogglingApproval(false)
+    if (error) {
+      setApproved(!next)
+      toast.error(errorMessage(error))
+      return
+    }
     onSaved()
   }
 
@@ -99,17 +109,20 @@ function ApprovalAndNote({ item, onSaved }: { item: EditorialPlanItem; onSaved: 
     setSaved(false)
     const { error } = await supabase.rpc('submit_client_note', { p_item_id: item.id, p_note: note.trim() || null })
     setSavingNote(false)
-    if (!error) {
-      setSaved(true)
-      onSaved()
+    if (error) {
+      toast.error(errorMessage(error))
+      return
     }
+    setSaved(true)
+    onSaved()
   }
 
   return (
     <div className="space-y-3 border-t border-brand-100 pt-3">
       <button
         onClick={toggleApproved}
-        className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
+        disabled={togglingApproval}
+        className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition-colors disabled:opacity-50 ${
           approved
             ? 'border-green-200 bg-green-50 text-green-700'
             : 'border-brand-200 bg-white text-neutral-600 hover:bg-brand-50'

@@ -5,6 +5,7 @@ import { EDITORIAL_STATUS_LABELS } from '../types'
 import type { EditorialPlanItem } from '../types'
 import { addMonths, getMonthStart, isInMonth, monthLabel } from '../lib/date'
 import { EditorialPlanForm } from './EditorialPlanForm'
+import { errorMessage, useToast } from '../lib/toast'
 
 interface Props {
   pageId: string
@@ -39,6 +40,7 @@ export function EditorialPlanManager({ pageId }: Props) {
   const [editingItem, setEditingItem] = useState<EditorialPlanItem | undefined>(undefined)
   const [monthStart, setMonthStart] = useState(() => getMonthStart(new Date()))
   const [clientFilter, setClientFilter] = useState<ClientFilter>('all')
+  const toast = useToast()
 
   const loadItems = useCallback(async () => {
     const { data } = await supabase
@@ -67,9 +69,13 @@ export function EditorialPlanManager({ pageId }: Props) {
     if (!confirm('Eliminare questo contenuto dal piano editoriale?')) return
     if (item.image_paths.length > 0) {
       const { error } = await supabase.storage.from('media').remove(item.image_paths)
-      if (error) console.error('Failed to delete images', error)
+      if (error) toast.error('Alcune immagini non sono state cancellate dallo storage')
     }
-    await supabase.from('editorial_plan_items').delete().eq('id', item.id)
+    const { error: deleteError } = await supabase.from('editorial_plan_items').delete().eq('id', item.id)
+    if (deleteError) {
+      toast.error(errorMessage(deleteError))
+      return
+    }
     setShowForm(false)
     setEditingItem(undefined)
     loadItems()

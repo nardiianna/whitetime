@@ -3,6 +3,8 @@ import type { FormEvent } from 'react'
 import { Calendar, Euro, ImageUp, X } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import type { AdReport, CustomMetric } from '../types'
+import { prepareImageFile } from '../lib/image'
+import { errorMessage, useToast } from '../lib/toast'
 
 interface Props {
   pageId: string
@@ -31,15 +33,6 @@ function toNumber(value: string): number | null {
   return value.trim() === '' ? null : Number(value)
 }
 
-function errorMessage(err: unknown): string {
-  if (err && typeof err === 'object' && 'message' in err) {
-    const message = String((err as { message?: unknown }).message ?? '')
-    const hint = 'hint' in err ? (err as { hint?: unknown }).hint : undefined
-    return hint ? `${message} — ${hint}` : message || 'Errore durante il salvataggio'
-  }
-  return err instanceof Error ? err.message : 'Errore durante il salvataggio'
-}
-
 export function ReportForm({ pageId, report, onSaved, onCancel, onDelete }: Props) {
   const [campaignName, setCampaignName] = useState(report?.campaign_name ?? '')
   const [periodStart, setPeriodStart] = useState(report?.period_start ?? '')
@@ -57,6 +50,8 @@ export function ReportForm({ pageId, report, onSaved, onCancel, onDelete }: Prop
   const [newFile, setNewFile] = useState<File | null>(null)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [preparingFile, setPreparingFile] = useState(false)
+  const toast = useToast()
 
   const existingUrl = existingPath
     ? supabase.storage.from('reports').getPublicUrl(existingPath).data.publicUrl
@@ -115,7 +110,7 @@ export function ReportForm({ pageId, report, onSaved, onCancel, onDelete }: Prop
 
       if (removedPath) {
         const { error: removeError } = await supabase.storage.from('reports').remove([removedPath])
-        if (removeError) console.error('Failed to delete removed screenshot', removeError)
+        if (removeError) toast.error('Lo screenshot rimosso non è stato cancellato dallo storage')
       }
 
       onSaved()
@@ -251,11 +246,24 @@ export function ReportForm({ pageId, report, onSaved, onCancel, onDelete }: Prop
         {!existingUrl && (
           <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-brand-300 bg-brand-50/40 px-3 py-2.5 text-sm text-brand-600 hover:bg-brand-50">
             <ImageUp className="h-4 w-4" />
-            Carica screenshot
+            {preparingFile ? 'Elaborazione…' : 'Carica screenshot'}
             <input
               type="file"
               accept="image/*"
-              onChange={(e) => setNewFile(e.target.files?.[0] ?? null)}
+              disabled={preparingFile}
+              onChange={async (e) => {
+                const file = e.target.files?.[0]
+                e.target.value = ''
+                if (!file) return
+                setPreparingFile(true)
+                try {
+                  setNewFile(await prepareImageFile(file))
+                } catch (err) {
+                  toast.error(err instanceof Error ? err.message : 'File non valido')
+                } finally {
+                  setPreparingFile(false)
+                }
+              }}
               className="hidden"
             />
           </label>
@@ -296,7 +304,7 @@ export function ReportForm({ pageId, report, onSaved, onCancel, onDelete }: Prop
           </button>
           <button
             type="submit"
-            disabled={saving}
+            disabled={saving || preparingFile}
             className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white shadow-sm shadow-brand-300/60 hover:bg-brand-600 disabled:opacity-50"
           >
             {saving ? 'Salvataggio…' : 'Salva'}

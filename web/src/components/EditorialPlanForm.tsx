@@ -4,6 +4,8 @@ import { Calendar, ImageUp, X } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { EDITORIAL_STATUS_LABELS } from '../types'
 import type { EditorialPlanItem, EditorialStatus } from '../types'
+import { prepareImageFiles } from '../lib/image'
+import { errorMessage, useToast } from '../lib/toast'
 
 interface Props {
   pageId: string
@@ -11,15 +13,6 @@ interface Props {
   onSaved: () => void
   onCancel: () => void
   onDelete?: () => void
-}
-
-function errorMessage(err: unknown): string {
-  if (err && typeof err === 'object' && 'message' in err) {
-    const message = String((err as { message?: unknown }).message ?? '')
-    const hint = 'hint' in err ? (err as { hint?: unknown }).hint : undefined
-    return hint ? `${message} — ${hint}` : message || 'Errore durante il salvataggio'
-  }
-  return err instanceof Error ? err.message : 'Errore durante il salvataggio'
 }
 
 export function EditorialPlanForm({ pageId, item, onSaved, onCancel, onDelete }: Props) {
@@ -36,15 +29,20 @@ export function EditorialPlanForm({ pageId, item, onSaved, onCancel, onDelete }:
   const [internalNote, setInternalNote] = useState(item?.internal_note ?? '')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [preparingFiles, setPreparingFiles] = useState(false)
+  const toast = useToast()
 
   const existingImageUrls = existingImagePaths.map((path) => ({
     path,
     url: supabase.storage.from('media').getPublicUrl(path).data.publicUrl,
   }))
 
-  function addImageFiles(fileList: FileList | null) {
+  async function addImageFiles(fileList: FileList | null) {
     if (!fileList) return
-    setNewImageFiles((prev) => [...prev, ...Array.from(fileList)])
+    setPreparingFiles(true)
+    const ready = await prepareImageFiles(Array.from(fileList), toast.error)
+    setNewImageFiles((prev) => [...prev, ...ready])
+    setPreparingFiles(false)
   }
 
   function removeExistingImage(path: string) {
@@ -91,7 +89,7 @@ export function EditorialPlanForm({ pageId, item, onSaved, onCancel, onDelete }:
 
       if (removedImagePaths.length > 0) {
         const { error: removeError } = await supabase.storage.from('media').remove(removedImagePaths)
-        if (removeError) console.error('Failed to delete removed images', removeError)
+        if (removeError) toast.error('Alcune immagini rimosse non sono state cancellate dallo storage')
       }
 
       onSaved()
@@ -206,11 +204,12 @@ export function EditorialPlanForm({ pageId, item, onSaved, onCancel, onDelete }:
         )}
         <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-brand-300 bg-brand-50/40 px-3 py-2.5 text-sm text-brand-600 hover:bg-brand-50">
           <ImageUp className="h-4 w-4" />
-          Carica immagini
+          {preparingFiles ? 'Elaborazione…' : 'Carica immagini'}
           <input
             type="file"
             accept="image/*"
             multiple
+            disabled={preparingFiles}
             onChange={(e) => {
               addImageFiles(e.target.files)
               e.target.value = ''
@@ -278,7 +277,7 @@ export function EditorialPlanForm({ pageId, item, onSaved, onCancel, onDelete }:
           </button>
           <button
             type="submit"
-            disabled={saving}
+            disabled={saving || preparingFiles}
             className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white shadow-sm shadow-brand-300/60 hover:bg-brand-600 disabled:opacity-50"
           >
             {saving ? 'Salvataggio…' : 'Salva'}
