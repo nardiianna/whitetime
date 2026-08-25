@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { BarChart3, FileText, LogOut } from 'lucide-react'
+import { ArrowLeftRight, BarChart3, FileText, LogOut } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import logo from '../assets/logo.png'
 import type { Page } from '../types'
@@ -8,9 +8,10 @@ import { ClientReports } from './ClientReports'
 
 interface Props {
   pageId: string
+  onSwitchCompany?: () => void
 }
 
-export function ClientPortal({ pageId }: Props) {
+export function ClientPortal({ pageId, onSwitchCompany }: Props) {
   const [page, setPage] = useState<Page | null>(null)
   const [tab, setTab] = useState<'ped' | 'report'>('ped')
 
@@ -28,13 +29,24 @@ export function ClientPortal({ pageId }: Props) {
       <div className="mx-auto max-w-3xl px-4 py-6">
         <div className="mb-5 flex items-center justify-between">
           <img src={logo} alt="WhiteTime" className="h-8 w-auto" />
-          <button
-            onClick={() => supabase.auth.signOut()}
-            className="flex items-center gap-1.5 text-sm font-medium text-brand-600 hover:text-brand-700"
-          >
-            <LogOut className="h-4 w-4" />
-            Esci
-          </button>
+          <div className="flex items-center gap-4">
+            {onSwitchCompany && (
+              <button
+                onClick={onSwitchCompany}
+                className="flex items-center gap-1.5 text-sm font-medium text-brand-600 hover:text-brand-700"
+              >
+                <ArrowLeftRight className="h-4 w-4" />
+                Cambia azienda
+              </button>
+            )}
+            <button
+              onClick={() => supabase.auth.signOut()}
+              className="flex items-center gap-1.5 text-sm font-medium text-brand-600 hover:text-brand-700"
+            >
+              <LogOut className="h-4 w-4" />
+              Esci
+            </button>
+          </div>
         </div>
 
         {page && <h1 className="mb-4 text-xl font-semibold text-neutral-900">{page.name}</h1>}

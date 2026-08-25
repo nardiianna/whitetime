@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { KeyRound } from 'lucide-react'
 import { supabase } from '../lib/supabase'
-import type { Profile } from '../types'
 import { errorMessage, useToast } from '../lib/toast'
 
 interface Props {
@@ -10,15 +9,15 @@ interface Props {
 }
 
 export function ClientAccessForm({ pageId }: Props) {
-  const [profiles, setProfiles] = useState<Profile[]>([])
+  const [profileIds, setProfileIds] = useState<string[]>([])
   const [uid, setUid] = useState('')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const toast = useToast()
 
   const loadProfiles = useCallback(async () => {
-    const { data } = await supabase.from('profiles').select('*').eq('page_id', pageId)
-    setProfiles(data ?? [])
+    const { data } = await supabase.from('profile_page_access').select('profile_id').eq('page_id', pageId)
+    setProfileIds((data ?? []).map((row) => row.profile_id))
   }, [pageId])
 
   useEffect(() => {
@@ -27,29 +26,67 @@ export function ClientAccessForm({ pageId }: Props) {
 
   async function handleAdd(e: FormEvent) {
     e.preventDefault()
-    if (!uid.trim()) return
+    const id = uid.trim()
+    if (!id) return
     setSaving(true)
     setError(null)
-    const { error: saveError } = await supabase
+
+    const { data: existing, error: fetchError } = await supabase
       .from('profiles')
-      .insert({ id: uid.trim(), role: 'client', page_id: pageId })
-    if (saveError) {
-      setError(
-        saveError.message.includes('foreign key')
-          ? "Nessun utente Supabase trovato con questo UID. Crealo prima da Dashboard → Authentication → Users."
-          : saveError.message,
-      )
+      .select('role')
+      .eq('id', id)
+      .maybeSingle()
+    if (fetchError) {
+      setError(errorMessage(fetchError))
       setSaving(false)
       return
     }
+
+    if (existing && existing.role !== 'client') {
+      setError('Questo UID appartiene a un amministratore: non può essere aggiunto come cliente.')
+      setSaving(false)
+      return
+    }
+
+    if (!existing) {
+      const { error: profileError } = await supabase.from('profiles').insert({ id, role: 'client' })
+      if (profileError) {
+        setError(
+          profileError.message.includes('foreign key')
+            ? "Nessun utente Supabase trovato con questo UID. Crealo prima da Dashboard → Authentication → Users."
+            : profileError.message,
+        )
+        setSaving(false)
+        return
+      }
+    }
+
+    const { error: accessError } = await supabase
+      .from('profile_page_access')
+      .insert({ profile_id: id, page_id: pageId })
+    if (accessError && !accessError.message.includes('duplicate key')) {
+      setError(errorMessage(accessError))
+      setSaving(false)
+      return
+    }
+
     setUid('')
     setSaving(false)
     loadProfiles()
   }
 
-  async function handleRemove(profile: Profile) {
-    if (!confirm("Revocare l'accesso di questo utente a questo cliente?")) return
-    const { error } = await supabase.from('profiles').delete().eq('id', profile.id)
+  async function handleRemove(profileId: string) {
+    if (
+      !confirm(
+        "Revocare l'accesso di questo utente a questo cliente? (Se ha accesso ad altre aziende, quello resta invariato.)",
+      )
+    )
+      return
+    const { error } = await supabase
+      .from('profile_page_access')
+      .delete()
+      .eq('profile_id', profileId)
+      .eq('page_id', pageId)
     if (error) {
       toast.error(errorMessage(error))
       return
@@ -66,17 +103,18 @@ export function ClientAccessForm({ pageId }: Props) {
         <div>
           <p className="text-sm font-semibold text-brand-600">Accessi cliente</p>
           <p className="text-xs text-neutral-500">
-            Crea l'utente da Supabase Dashboard → Authentication → Users, poi incolla qui il suo UID.
+            Crea l'utente da Supabase Dashboard → Authentication → Users, poi incolla qui il suo UID. Lo stesso UID
+            può essere collegato a più aziende: il cliente sceglierà quale vedere al login.
           </p>
         </div>
       </div>
 
-      {profiles.length > 0 && (
+      {profileIds.length > 0 && (
         <ul className="space-y-1.5">
-          {profiles.map((profile) => (
-            <li key={profile.id} className="flex items-center gap-2 rounded-lg bg-brand-50/50 px-3 py-2 text-sm">
-              <span className="flex-1 truncate font-mono text-xs text-neutral-700">{profile.id}</span>
-              <button onClick={() => handleRemove(profile)} className="text-xs font-medium text-red-700 hover:underline">
+          {profileIds.map((id) => (
+            <li key={id} className="flex items-center gap-2 rounded-lg bg-brand-50/50 px-3 py-2 text-sm">
+              <span className="flex-1 truncate font-mono text-xs text-neutral-700">{id}</span>
+              <button onClick={() => handleRemove(id)} className="text-xs font-medium text-red-700 hover:underline">
                 Revoca
               </button>
             </li>
