@@ -4,11 +4,15 @@ import { supabase } from '../lib/supabase'
 import type { Page } from '../types'
 import { EditorialPlanManager } from './EditorialPlanManager'
 import { ReportsManager } from './ReportsManager'
+import { loadPersisted, savePersisted } from '../lib/persist'
 
 export function AdminClientArea() {
   const [pages, setPages] = useState<Page[]>([])
-  const [selectedPageId, setSelectedPageId] = useState<string>('')
-  const [tab, setTab] = useState<'ped' | 'dashboard'>('ped')
+  const [selectedPageId, setSelectedPageId] = useState<string>(() => loadPersisted('clientArea_pageId', ''))
+  const [tab, setTab] = useState<'ped' | 'dashboard'>(() => loadPersisted('clientArea_tab', 'ped'))
+
+  useEffect(() => savePersisted('clientArea_pageId', selectedPageId), [selectedPageId])
+  useEffect(() => savePersisted('clientArea_tab', tab), [tab])
 
   useEffect(() => {
     supabase

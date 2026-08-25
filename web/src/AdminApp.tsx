@@ -8,6 +8,7 @@ import { IdeasBank } from './components/IdeasBank'
 import { PageForm } from './components/PageForm'
 import { CategoryForm } from './components/CategoryForm'
 import { errorMessage, useToast, UNDO_DELAY_MS } from './lib/toast'
+import { loadPersisted, savePersisted } from './lib/persist'
 import type { Page, Post, ContentIdea, Category } from './types'
 
 const ALL = 'all'
@@ -54,7 +55,7 @@ function matchesSearch(post: Post, query: string) {
 function AdminApp() {
   const toast = useToast()
   const [pages, setPages] = useState<Page[]>([])
-  const [selectedPageId, setSelectedPageId] = useState<string>(ALL)
+  const [selectedPageId, setSelectedPageId] = useState<string>(() => loadPersisted('selectedPageId', ALL))
   const [categories, setCategories] = useState<Category[]>([])
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>(ALL)
   const [posts, setPosts] = useState<Post[]>([])
@@ -66,9 +67,17 @@ function AdminApp() {
   const [editingPage, setEditingPage] = useState<Page | undefined>(undefined)
   const [showCategoryForm, setShowCategoryForm] = useState(false)
   const [editingCategory, setEditingCategory] = useState<Category | undefined>(undefined)
-  const [weekStart, setWeekStart] = useState(() => getMonday(new Date()))
-  const [monthStart, setMonthStart] = useState(() => getMonthStart(new Date()))
-  const [viewMode, setViewMode] = useState<'calendar' | 'month' | 'list'>('calendar')
+  const [weekStart, setWeekStart] = useState(() => {
+    const saved = loadPersisted<string | null>('weekStart', null)
+    return saved ? new Date(saved) : getMonday(new Date())
+  })
+  const [monthStart, setMonthStart] = useState(() => {
+    const saved = loadPersisted<string | null>('monthStart', null)
+    return saved ? new Date(saved) : getMonthStart(new Date())
+  })
+  const [viewMode, setViewMode] = useState<'calendar' | 'month' | 'list'>(() =>
+    loadPersisted('viewMode', 'calendar'),
+  )
   const [searchQuery, setSearchQuery] = useState('')
   const [failedReminders, setFailedReminders] = useState<Post[]>([])
 
@@ -82,6 +91,11 @@ function AdminApp() {
       pendingTimers.current.forEach((timer) => clearTimeout(timer))
     }
   }, [])
+
+  useEffect(() => savePersisted('selectedPageId', selectedPageId), [selectedPageId])
+  useEffect(() => savePersisted('viewMode', viewMode), [viewMode])
+  useEffect(() => savePersisted('weekStart', weekStart.toISOString()), [weekStart])
+  useEffect(() => savePersisted('monthStart', monthStart.toISOString()), [monthStart])
 
   const loadPages = useCallback(async () => {
     const { data, error } = await supabase.from('pages').select('*').order('name')

@@ -1,12 +1,19 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Calendar, LogOut, Users } from 'lucide-react'
 import { supabase } from './lib/supabase'
 import { AdminClientArea } from './components/AdminClientArea'
 import logo from './assets/logo.png'
 import AdminApp from './AdminApp'
+import { loadPersisted, savePersisted } from './lib/persist'
 
 export function AdminRoot() {
-  const [section, setSection] = useState<'pianificazione' | 'clienti'>('pianificazione')
+  const [section, setSection] = useState<'pianificazione' | 'clienti'>(() =>
+    loadPersisted('admin_section', 'pianificazione'),
+  )
+
+  useEffect(() => {
+    savePersisted('admin_section', section)
+  }, [section])
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-brand-50 to-white">
