@@ -10,6 +10,7 @@ import { errorMessage, useToast } from '../lib/toast'
 interface Props {
   pageId: string
   onPromote?: (draft: PostPromotionDraft) => void
+  onNoteAcknowledged?: () => void
 }
 
 type ClientFilter = 'all' | 'approved' | 'commented' | 'pending'
@@ -35,7 +36,7 @@ function matchesClientFilter(item: EditorialPlanItem, filter: ClientFilter) {
   return !item.approved && !item.client_note
 }
 
-export function EditorialPlanManager({ pageId, onPromote }: Props) {
+export function EditorialPlanManager({ pageId, onPromote, onNoteAcknowledged }: Props) {
   const [items, setItems] = useState<EditorialPlanItem[]>([])
   const [showForm, setShowForm] = useState(false)
   const [editingItem, setEditingItem] = useState<EditorialPlanItem | undefined>(undefined)
@@ -64,6 +65,19 @@ export function EditorialPlanManager({ pageId, onPromote }: Props) {
   function openEdit(item: EditorialPlanItem) {
     setEditingItem(item)
     setShowForm(true)
+  }
+
+  async function handleAcknowledgeNote(item: EditorialPlanItem) {
+    const { error } = await supabase
+      .from('editorial_plan_items')
+      .update({ note_acknowledged: true })
+      .eq('id', item.id)
+    if (error) {
+      toast.error(errorMessage(error))
+      return
+    }
+    onNoteAcknowledged?.()
+    loadItems()
   }
 
   async function handleDelete(item: EditorialPlanItem) {
@@ -131,9 +145,25 @@ export function EditorialPlanManager({ pageId, onPromote }: Props) {
               </span>
             )}
             {item.client_note && (
-              <span className="rounded-full bg-neutral-300 px-2 py-0.5 text-xs text-neutral-900" title={item.client_note}>
-                💬 nota cliente
+              <span
+                className={`rounded-full px-2 py-0.5 text-xs ${
+                  item.note_acknowledged ? 'bg-neutral-300 text-neutral-900' : 'bg-red-100 font-medium text-red-700'
+                }`}
+                title={item.client_note}
+              >
+                💬 {item.note_acknowledged ? 'nota cliente' : 'nuova nota cliente'}
               </span>
+            )}
+            {item.client_note && !item.note_acknowledged && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleAcknowledgeNote(item)
+                }}
+                className="rounded-full border border-neutral-300 px-2 py-0.5 text-xs font-medium text-neutral-700 hover:bg-neutral-100"
+              >
+                ✓ Segna come letta
+              </button>
             )}
           </div>
           <p className="truncate text-sm font-medium text-neutral-900">

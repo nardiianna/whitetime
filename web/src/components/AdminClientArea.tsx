@@ -36,16 +36,34 @@ export function AdminClientArea({ onPromote, onPendingCountChange }: Props) {
       .from('editorial_plan_items')
       .select('page_id')
       .not('client_note', 'is', null)
+      .eq('note_acknowledged', false)
       .then(({ data }) => {
         const counts: Record<string, number> = {}
         for (const row of data ?? []) {
           counts[row.page_id] = (counts[row.page_id] ?? 0) + 1
         }
         setPendingByPage(counts)
-        onPendingCountChange?.(data?.length ?? 0)
       })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  useEffect(() => {
+    const total = Object.values(pendingByPage).reduce((sum, n) => sum + n, 0)
+    onPendingCountChange?.(total)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingByPage])
+
+  function handleNoteAcknowledged(pageId: string) {
+    setPendingByPage((prev) => {
+      const current = prev[pageId] ?? 0
+      if (current <= 1) {
+        const next = { ...prev }
+        delete next[pageId]
+        return next
+      }
+      return { ...prev, [pageId]: current - 1 }
+    })
+  }
 
   if (pages.length === 0) {
     return (
@@ -106,7 +124,11 @@ export function AdminClientArea({ onPromote, onPendingCountChange }: Props) {
           </div>
 
           {tab === 'ped' ? (
-            <EditorialPlanManager pageId={selectedPageId} onPromote={onPromote} />
+            <EditorialPlanManager
+              pageId={selectedPageId}
+              onPromote={onPromote}
+              onNoteAcknowledged={() => handleNoteAcknowledged(selectedPageId)}
+            />
           ) : (
             <ReportsManager pageId={selectedPageId} />
           )}

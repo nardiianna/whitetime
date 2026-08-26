@@ -90,6 +90,7 @@ export interface EditorialPlanItem {
   image_paths: string[]
   internal_note: string | null
   client_note: string | null
+  note_acknowledged: boolean
   approved: boolean
   created_at: string
   updated_at: string
