@@ -2,7 +2,7 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { Calendar, Euro, ImageUp, X } from 'lucide-react'
 import { supabase } from '../lib/supabase'
-import type { AdReport, CustomMetric } from '../types'
+import type { AdReport, CustomMetric, ReportKind } from '../types'
 import { prepareImageFile, sanitizeFileName } from '../lib/image'
 import { errorMessage, useToast } from '../lib/toast'
 
@@ -34,6 +34,7 @@ function toNumber(value: string): number | null {
 }
 
 export function ReportForm({ pageId, report, onSaved, onCancel, onDelete }: Props) {
+  const [kind, setKind] = useState<ReportKind>(report?.kind ?? 'campaign')
   const [campaignName, setCampaignName] = useState(report?.campaign_name ?? '')
   const [periodStart, setPeriodStart] = useState(report?.period_start ?? '')
   const [periodEnd, setPeriodEnd] = useState(report?.period_end ?? '')
@@ -93,6 +94,7 @@ export function ReportForm({ pageId, report, onSaved, onCancel, onDelete }: Prop
 
       const payload = {
         page_id: pageId,
+        kind,
         campaign_name: campaignName.trim(),
         period_start: periodStart || null,
         period_end: periodEnd || null,
@@ -124,6 +126,34 @@ export function ReportForm({ pageId, report, onSaved, onCancel, onDelete }: Prop
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5 rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
+      <div className="space-y-1.5">
+        <label className={LABEL}>Tipo report</label>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => setKind('campaign')}
+            className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
+              kind === 'campaign'
+                ? 'border-neutral-900 bg-neutral-900 text-white'
+                : 'border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-100'
+            }`}
+          >
+            Campagna ADV
+          </button>
+          <button
+            type="button"
+            onClick={() => setKind('organic')}
+            className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
+              kind === 'organic'
+                ? 'border-indigo-600 bg-indigo-600 text-white'
+                : 'border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-100'
+            }`}
+          >
+            Crescita organica
+          </button>
+        </div>
+      </div>
+
       <div className="space-y-1.5">
         <label className={LABEL}>Nome campagna</label>
         <input

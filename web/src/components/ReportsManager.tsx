@@ -19,7 +19,10 @@ export function ReportsManager({ pageId }: Props) {
       .select('*')
       .eq('page_id', pageId)
       .order('period_start', { ascending: false, nullsFirst: false })
-    setReports(data ?? [])
+    const sorted = [...(data ?? [])].sort((a, b) =>
+      a.kind === b.kind ? 0 : a.kind === 'organic' ? -1 : 1,
+    )
+    setReports(sorted)
   }, [pageId])
 
   useEffect(() => {
@@ -95,10 +98,19 @@ export function ReportsManager({ pageId }: Props) {
             <li
               key={report.id}
               onClick={() => openEdit(report)}
-              className="cursor-pointer space-y-3 rounded-xl border border-neutral-200 p-4 transition-colors hover:border-neutral-400 hover:bg-neutral-100/40"
+              className={`cursor-pointer space-y-3 rounded-xl border p-4 transition-colors hover:bg-neutral-100/40 ${
+                report.kind === 'organic'
+                  ? 'border-2 border-indigo-300 hover:border-indigo-400'
+                  : 'border-neutral-200 hover:border-neutral-400'
+              }`}
             >
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div>
+                  {report.kind === 'organic' && (
+                    <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-indigo-600">
+                      📈 Crescita organica
+                    </p>
+                  )}
                   <p className="font-semibold text-neutral-900">{report.campaign_name}</p>
                   {report.campaign_objective && (
                     <p className="text-xs text-neutral-800">{report.campaign_objective}</p>

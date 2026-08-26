@@ -101,9 +101,12 @@ export interface CustomMetric {
   value: number | null
 }
 
+export type ReportKind = 'campaign' | 'organic'
+
 export interface AdReport {
   id: string
   page_id: string
+  kind: ReportKind
   campaign_name: string
   period_start: string | null
   period_end: string | null

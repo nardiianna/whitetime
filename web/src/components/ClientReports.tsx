@@ -17,7 +17,10 @@ export function ClientReports({ pageId }: Props) {
       .eq('page_id', pageId)
       .order('period_start', { ascending: false, nullsFirst: false })
       .then(({ data }) => {
-        setReports(data ?? [])
+        const sorted = [...(data ?? [])].sort((a, b) =>
+          a.kind === b.kind ? 0 : a.kind === 'organic' ? -1 : 1,
+        )
+        setReports(sorted)
         setLoading(false)
       })
   }, [pageId])
@@ -50,9 +53,21 @@ export function ClientReports({ pageId }: Props) {
           ? supabase.storage.from('reports').getPublicUrl(report.screenshot_path).data.publicUrl
           : null
         return (
-          <li key={report.id} className="space-y-3 rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
+          <li
+            key={report.id}
+            className={`space-y-3 rounded-2xl border bg-white p-5 shadow-sm ${
+              report.kind === 'organic' ? 'border-2 border-indigo-300' : 'border-neutral-200'
+            }`}
+          >
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="font-semibold text-neutral-900">{report.campaign_name}</span>
+              <div>
+                {report.kind === 'organic' && (
+                  <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-indigo-600">
+                    📈 Crescita organica
+                  </p>
+                )}
+                <span className="font-semibold text-neutral-900">{report.campaign_name}</span>
+              </div>
               {(report.period_start || report.period_end) && (
                 <span className="text-xs text-neutral-600">
                   {report.period_start ? new Date(report.period_start).toLocaleDateString('it-IT') : '…'}
