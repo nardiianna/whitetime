@@ -70,6 +70,13 @@ export const EDITORIAL_STATUS_LABELS: Record<EditorialStatus, string> = {
   pubblicato: 'Pubblicato',
 }
 
+export interface PostPromotionDraft {
+  pageId: string
+  caption: string
+  notes: string
+  scheduledDate: string | null
+}
+
 export interface EditorialPlanItem {
   id: string
   page_id: string

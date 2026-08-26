@@ -5,11 +5,14 @@ import { AdminClientArea } from './components/AdminClientArea'
 import logo from './assets/logo.png'
 import AdminApp from './AdminApp'
 import { loadPersisted, savePersisted } from './lib/persist'
+import type { PostPromotionDraft } from './types'
 
 export function AdminRoot() {
   const [section, setSection] = useState<'pianificazione' | 'clienti'>(() =>
     loadPersisted('admin_section', 'pianificazione'),
   )
+  const [pendingClientNotes, setPendingClientNotes] = useState(0)
+  const [promotionDraft, setPromotionDraft] = useState<PostPromotionDraft | null>(null)
 
   useEffect(() => {
     savePersisted('admin_section', section)
@@ -51,10 +54,25 @@ export function AdminRoot() {
           >
             <Users className="h-4 w-4" />
             Area Clienti
+            {pendingClientNotes > 0 && (
+              <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-red-600 px-1 text-[11px] font-semibold text-white">
+                {pendingClientNotes}
+              </span>
+            )}
           </button>
         </div>
 
-        {section === 'pianificazione' ? <AdminApp /> : <AdminClientArea />}
+        {section === 'pianificazione' ? (
+          <AdminApp promotionDraft={promotionDraft} onPromotionConsumed={() => setPromotionDraft(null)} />
+        ) : (
+          <AdminClientArea
+            onPendingCountChange={setPendingClientNotes}
+            onPromote={(draft) => {
+              setPromotionDraft(draft)
+              setSection('pianificazione')
+            }}
+          />
+        )}
       </div>
     </div>
   )

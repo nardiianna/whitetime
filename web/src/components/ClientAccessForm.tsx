@@ -10,6 +10,7 @@ interface Props {
 
 export function ClientAccessForm({ pageId }: Props) {
   const [profileIds, setProfileIds] = useState<string[]>([])
+  const [emails, setEmails] = useState<Record<string, string>>({})
   const [uid, setUid] = useState('')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -17,7 +18,14 @@ export function ClientAccessForm({ pageId }: Props) {
 
   const loadProfiles = useCallback(async () => {
     const { data } = await supabase.from('profile_page_access').select('profile_id').eq('page_id', pageId)
-    setProfileIds((data ?? []).map((row) => row.profile_id))
+    const ids = (data ?? []).map((row) => row.profile_id)
+    setProfileIds(ids)
+    if (ids.length > 0) {
+      const { data: users } = await supabase.rpc('admin_list_user_emails', { p_ids: ids })
+      setEmails(Object.fromEntries((users ?? []).map((u: { id: string; email: string }) => [u.id, u.email])))
+    } else {
+      setEmails({})
+    }
   }, [pageId])
 
   useEffect(() => {
@@ -113,7 +121,9 @@ export function ClientAccessForm({ pageId }: Props) {
         <ul className="space-y-1.5">
           {profileIds.map((id) => (
             <li key={id} className="flex items-center gap-2 rounded-lg bg-neutral-100/50 px-3 py-2 text-sm">
-              <span className="flex-1 truncate font-mono text-xs text-neutral-700">{id}</span>
+              <span className="min-w-0 flex-1 truncate text-neutral-800" title={id}>
+                {emails[id] ?? <span className="font-mono text-xs text-neutral-500">{id}</span>}
+              </span>
               <button onClick={() => handleRemove(id)} className="text-xs font-medium text-red-700 hover:underline">
                 Revoca
               </button>

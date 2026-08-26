@@ -9,7 +9,7 @@ import { PageForm } from './components/PageForm'
 import { CategoryForm } from './components/CategoryForm'
 import { errorMessage, useToast, UNDO_DELAY_MS } from './lib/toast'
 import { loadPersisted, savePersisted } from './lib/persist'
-import type { Page, Post, ContentIdea, Category } from './types'
+import type { Page, Post, ContentIdea, Category, PostPromotionDraft } from './types'
 
 const ALL = 'all'
 
@@ -52,7 +52,12 @@ function matchesSearch(post: Post, query: string) {
   )
 }
 
-function AdminApp() {
+interface Props {
+  promotionDraft?: PostPromotionDraft | null
+  onPromotionConsumed?: () => void
+}
+
+function AdminApp({ promotionDraft, onPromotionConsumed }: Props) {
   const toast = useToast()
   const [pages, setPages] = useState<Page[]>([])
   const [selectedPageId, setSelectedPageId] = useState<string>(() => loadPersisted('selectedPageId', ALL))
@@ -63,6 +68,7 @@ function AdminApp() {
   const [showForm, setShowForm] = useState(false)
   const [editingPost, setEditingPost] = useState<Post | undefined>(undefined)
   const [defaultScheduledAt, setDefaultScheduledAt] = useState<string | undefined>(undefined)
+  const [formPrefill, setFormPrefill] = useState<{ caption: string; notes: string } | undefined>(undefined)
   const [showPageForm, setShowPageForm] = useState(false)
   const [editingPage, setEditingPage] = useState<Page | undefined>(undefined)
   const [showCategoryForm, setShowCategoryForm] = useState(false)
@@ -96,6 +102,19 @@ function AdminApp() {
   useEffect(() => savePersisted('viewMode', viewMode), [viewMode])
   useEffect(() => savePersisted('weekStart', weekStart.toISOString()), [weekStart])
   useEffect(() => savePersisted('monthStart', monthStart.toISOString()), [monthStart])
+
+  useEffect(() => {
+    if (!promotionDraft) return
+    setSelectedPageId(promotionDraft.pageId)
+    setEditingPost(undefined)
+    setDefaultScheduledAt(
+      promotionDraft.scheduledDate ? toDateInputDefault(new Date(promotionDraft.scheduledDate)) : undefined,
+    )
+    setFormPrefill({ caption: promotionDraft.caption, notes: promotionDraft.notes })
+    setShowForm(true)
+    onPromotionConsumed?.()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [promotionDraft])
 
   const loadPages = useCallback(async () => {
     const { data, error } = await supabase.from('pages').select('*').order('name')
@@ -340,11 +359,13 @@ function AdminApp() {
   function openNewPost(date?: Date) {
     setEditingPost(undefined)
     setDefaultScheduledAt(date ? toDateInputDefault(date) : undefined)
+    setFormPrefill(undefined)
     setShowForm(true)
   }
 
   function openEditPost(post: Post) {
     setEditingPost(post)
+    setFormPrefill(undefined)
     setShowForm(true)
   }
 
@@ -585,11 +606,17 @@ function AdminApp() {
               defaultPageId={selectedPageId !== ALL ? selectedPageId : pages[0]?.id ?? ''}
               post={editingPost}
               defaultScheduledAt={defaultScheduledAt}
+              initialCaption={formPrefill?.caption}
+              initialNotes={formPrefill?.notes}
               onSaved={() => {
                 setShowForm(false)
+                setFormPrefill(undefined)
                 loadPosts()
               }}
-              onCancel={() => setShowForm(false)}
+              onCancel={() => {
+                setShowForm(false)
+                setFormPrefill(undefined)
+              }}
             />
           </div>
         )}

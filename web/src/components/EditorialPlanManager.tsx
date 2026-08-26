@@ -1,14 +1,15 @@
 import { useCallback, useEffect, useState } from 'react'
-import { ChevronLeft, ChevronRight, FileText, Plus } from 'lucide-react'
+import { ArrowRightCircle, ChevronLeft, ChevronRight, FileText, Plus } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { EDITORIAL_STATUS_LABELS } from '../types'
-import type { EditorialPlanItem } from '../types'
+import type { EditorialPlanItem, PostPromotionDraft } from '../types'
 import { addMonths, getMonthStart, isInMonth, monthLabel } from '../lib/date'
 import { EditorialPlanForm } from './EditorialPlanForm'
 import { errorMessage, useToast } from '../lib/toast'
 
 interface Props {
   pageId: string
+  onPromote?: (draft: PostPromotionDraft) => void
 }
 
 type ClientFilter = 'all' | 'approved' | 'commented' | 'pending'
@@ -34,7 +35,7 @@ function matchesClientFilter(item: EditorialPlanItem, filter: ClientFilter) {
   return !item.approved && !item.client_note
 }
 
-export function EditorialPlanManager({ pageId }: Props) {
+export function EditorialPlanManager({ pageId, onPromote }: Props) {
   const [items, setItems] = useState<EditorialPlanItem[]>([])
   const [showForm, setShowForm] = useState(false)
   const [editingItem, setEditingItem] = useState<EditorialPlanItem | undefined>(undefined)
@@ -139,15 +140,36 @@ export function EditorialPlanManager({ pageId }: Props) {
             {item.theme || '(senza tema)'}
           </p>
         </div>
-        <button
-          onClick={(e) => {
-            e.stopPropagation()
-            handleDelete(item)
-          }}
-          className="self-start rounded-full border border-neutral-300 px-3 py-1 text-xs font-medium text-neutral-700 hover:bg-neutral-100 sm:self-center"
-        >
-          Elimina
-        </button>
+        <div className="flex shrink-0 items-center gap-2 self-start sm:self-center">
+          {onPromote && item.approved && item.scheduled_date && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                onPromote({
+                  pageId,
+                  caption: item.caption ?? '',
+                  notes: item.theme ? `Da Piano Editoriale: ${item.theme}` : 'Da Piano Editoriale',
+                  scheduledDate: item.scheduled_date,
+                })
+                toast.success('Post precompilato in Pianificazione: rivedi data/immagini e salva.')
+              }}
+              className="flex items-center gap-1.5 rounded-full border border-neutral-300 px-3 py-1 text-xs font-medium text-neutral-700 hover:bg-neutral-100"
+              title="Precompila un nuovo post in Pianificazione con questo contenuto"
+            >
+              <ArrowRightCircle className="h-3.5 w-3.5" />
+              Trasforma in post
+            </button>
+          )}
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              handleDelete(item)
+            }}
+            className="rounded-full border border-neutral-300 px-3 py-1 text-xs font-medium text-neutral-700 hover:bg-neutral-100"
+          >
+            Elimina
+          </button>
+        </div>
       </li>
     )
   }

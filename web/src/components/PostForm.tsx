@@ -12,6 +12,8 @@ interface Props {
   defaultPageId: string
   post?: Post
   defaultScheduledAt?: string
+  initialCaption?: string
+  initialNotes?: string
   onSaved: () => void
   onCancel: () => void
 }
@@ -23,16 +25,25 @@ function toLocalInputValue(iso: string | undefined) {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
 }
 
-export function PostForm({ pages, defaultPageId, post, defaultScheduledAt, onSaved, onCancel }: Props) {
+export function PostForm({
+  pages,
+  defaultPageId,
+  post,
+  defaultScheduledAt,
+  initialCaption,
+  initialNotes,
+  onSaved,
+  onCancel,
+}: Props) {
   const [pageId, setPageId] = useState(post?.page_id ?? defaultPageId)
   const [categoryId, setCategoryId] = useState(post?.category_id ?? '')
   const [categories, setCategories] = useState<Category[]>([])
-  const [caption, setCaption] = useState(post?.caption ?? '')
+  const [caption, setCaption] = useState(post?.caption ?? initialCaption ?? '')
   const [scheduledAt, setScheduledAt] = useState(
     post ? toLocalInputValue(post.scheduled_at) : (defaultScheduledAt ?? ''),
   )
   const [status, setStatus] = useState<PostStatus>(post?.status ?? 'programmato')
-  const [notes, setNotes] = useState(post?.notes ?? '')
+  const [notes, setNotes] = useState(post?.notes ?? initialNotes ?? '')
   const [existingPaths, setExistingPaths] = useState(post?.media_paths ?? [])
   const [removedPaths, setRemovedPaths] = useState<string[]>([])
   const [newFiles, setNewFiles] = useState<File[]>([])
