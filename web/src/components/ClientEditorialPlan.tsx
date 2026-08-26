@@ -185,7 +185,21 @@ export function ClientEditorialPlan({ pageId, page }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageId])
 
-  if (loading) return null
+  if (loading) {
+    return (
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2" aria-label="Caricamento in corso">
+        {[0, 1].map((i) => (
+          <div key={i} className="animate-pulse overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
+            <div className="aspect-[4/5] bg-neutral-100" />
+            <div className="space-y-2 p-5">
+              <div className="h-4 w-3/4 rounded bg-neutral-100" />
+              <div className="h-4 w-1/2 rounded bg-neutral-100" />
+            </div>
+          </div>
+        ))}
+      </div>
+    )
+  }
 
   const monthItems = items.filter((i) => i.scheduled_date && isInMonth(i.scheduled_date, monthStart))
 

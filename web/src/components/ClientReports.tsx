@@ -22,7 +22,22 @@ export function ClientReports({ pageId }: Props) {
       })
   }, [pageId])
 
-  if (loading) return null
+  if (loading) {
+    return (
+      <ul className="space-y-3" aria-label="Caricamento in corso">
+        {[0, 1].map((i) => (
+          <li key={i} className="animate-pulse space-y-3 rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
+            <div className="h-4 w-1/3 rounded bg-neutral-100" />
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+              <div className="h-8 rounded bg-neutral-100" />
+              <div className="h-8 rounded bg-neutral-100" />
+              <div className="h-8 rounded bg-neutral-100" />
+            </div>
+          </li>
+        ))}
+      </ul>
+    )
+  }
 
   if (reports.length === 0) {
     return <p className="py-8 text-center text-sm text-neutral-500">Nessun report disponibile al momento.</p>
