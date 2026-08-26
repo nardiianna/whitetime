@@ -4,7 +4,7 @@ import { X } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { STATUS_LABELS, statusLabel } from '../types'
 import type { Page, Post, PostStatus, Category } from '../types'
-import { prepareImageFiles } from '../lib/image'
+import { prepareImageFiles, sanitizeFileName } from '../lib/image'
 import { useToast } from '../lib/toast'
 
 interface Props {
@@ -97,7 +97,7 @@ export function PostForm({
     try {
       const uploadedPaths: string[] = []
       for (const file of newFiles) {
-        const path = `${pageId}/${crypto.randomUUID()}-${file.name}`
+        const path = `${pageId}/${crypto.randomUUID()}-${sanitizeFileName(file.name)}`
         const { error: uploadError } = await supabase.storage.from('media').upload(path, file)
         if (uploadError) throw uploadError
         uploadedPaths.push(path)

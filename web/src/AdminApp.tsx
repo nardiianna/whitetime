@@ -9,6 +9,7 @@ import { PageForm } from './components/PageForm'
 import { CategoryForm } from './components/CategoryForm'
 import { errorMessage, useToast, UNDO_DELAY_MS } from './lib/toast'
 import { loadPersisted, savePersisted } from './lib/persist'
+import { sanitizeFileName } from './lib/image'
 import type { Page, Post, ContentIdea, Category, PostPromotionDraft } from './types'
 
 const ALL = 'all'
@@ -245,7 +246,7 @@ function AdminApp({ promotionDraft, onPromotionConsumed }: Props) {
     try {
       const mediaPaths: string[] = []
       for (const path of post.media_paths) {
-        const newPath = `${post.page_id}/${crypto.randomUUID()}-${path.split('/').pop()}`
+        const newPath = `${post.page_id}/${crypto.randomUUID()}-${sanitizeFileName(path.split('/').pop() ?? 'file')}`
         const { error } = await supabase.storage.from('media').copy(path, newPath)
         if (error) {
           toast.error('Impossibile copiare uno dei file media')

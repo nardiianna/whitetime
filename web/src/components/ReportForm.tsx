@@ -3,7 +3,7 @@ import type { FormEvent } from 'react'
 import { Calendar, Euro, ImageUp, X } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import type { AdReport, CustomMetric } from '../types'
-import { prepareImageFile } from '../lib/image'
+import { prepareImageFile, sanitizeFileName } from '../lib/image'
 import { errorMessage, useToast } from '../lib/toast'
 
 interface Props {
@@ -81,7 +81,7 @@ export function ReportForm({ pageId, report, onSaved, onCancel, onDelete }: Prop
     try {
       let screenshotPath = existingPath
       if (newFile) {
-        const path = `${pageId}/${crypto.randomUUID()}-${newFile.name}`
+        const path = `${pageId}/${crypto.randomUUID()}-${sanitizeFileName(newFile.name)}`
         const { error: uploadError } = await supabase.storage.from('reports').upload(path, newFile)
         if (uploadError) throw uploadError
         screenshotPath = path

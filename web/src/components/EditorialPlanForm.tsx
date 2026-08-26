@@ -4,7 +4,7 @@ import { Calendar, ImageUp, X } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { EDITORIAL_STATUS_LABELS } from '../types'
 import type { EditorialPlanItem, EditorialStatus } from '../types'
-import { prepareImageFiles } from '../lib/image'
+import { prepareImageFiles, sanitizeFileName } from '../lib/image'
 import { errorMessage, useToast } from '../lib/toast'
 
 interface Props {
@@ -61,7 +61,7 @@ export function EditorialPlanForm({ pageId, item, onSaved, onCancel, onDelete }:
     try {
       const uploadedPaths: string[] = []
       for (const file of newImageFiles) {
-        const path = `${pageId}/editorial/${crypto.randomUUID()}-${file.name}`
+        const path = `${pageId}/editorial/${crypto.randomUUID()}-${sanitizeFileName(file.name)}`
         const { error: uploadError } = await supabase.storage.from('media').upload(path, file)
         if (uploadError) throw uploadError
         uploadedPaths.push(path)

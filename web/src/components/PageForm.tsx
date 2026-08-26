@@ -4,7 +4,7 @@ import { ImageUp, X } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import type { Page } from '../types'
 import { ClientAccessForm } from './ClientAccessForm'
-import { prepareImageFile } from '../lib/image'
+import { prepareImageFile, sanitizeFileName } from '../lib/image'
 import { useToast } from '../lib/toast'
 
 interface Props {
@@ -42,7 +42,7 @@ export function PageForm({ page, onSaved, onCancel, onDelete }: Props) {
     try {
       let avatarPath = existingAvatarPath
       if (newAvatarFile) {
-        const path = `${page?.id ?? 'new'}/avatar-${crypto.randomUUID()}-${newAvatarFile.name}`
+        const path = `${page?.id ?? 'new'}/avatar-${crypto.randomUUID()}-${sanitizeFileName(newAvatarFile.name)}`
         const { error: uploadError } = await supabase.storage.from('media').upload(path, newAvatarFile)
         if (uploadError) throw uploadError
         avatarPath = path
