@@ -68,6 +68,7 @@ Deno.serve(async () => {
     .from("posts")
     .select("id, caption, media_paths, scheduled_at, reminder_error, page:pages(name), category:categories(name)")
     .eq("reminder_sent", false)
+    .eq("status", "programmato")
     .lte("scheduled_at", windowEnd);
 
   if (error) {
