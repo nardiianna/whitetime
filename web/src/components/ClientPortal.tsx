@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase'
 import type { Page } from '../types'
 import { ClientEditorialPlan } from './ClientEditorialPlan'
 import { ClientReports } from './ClientReports'
+import { loadPersisted, savePersisted } from '../lib/persist'
 
 interface Props {
   pageId: string
@@ -12,7 +13,11 @@ interface Props {
 
 export function ClientPortal({ pageId, onSwitchCompany }: Props) {
   const [page, setPage] = useState<Page | null>(null)
-  const [tab, setTab] = useState<'ped' | 'report'>('ped')
+  const [tab, setTab] = useState<'ped' | 'report'>(() => loadPersisted('client_tab', 'ped'))
+
+  useEffect(() => {
+    savePersisted('client_tab', tab)
+  }, [tab])
 
   useEffect(() => {
     supabase

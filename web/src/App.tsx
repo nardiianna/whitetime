@@ -6,6 +6,7 @@ import { ClientPortal } from './components/ClientPortal'
 import { ClientCompanyPicker } from './components/ClientCompanyPicker'
 import AdminRoot from './AdminRoot'
 import type { Page, Profile } from './types'
+import { loadPersisted, savePersisted } from './lib/persist'
 
 function App() {
   const [session, setSession] = useState<Session | null>(null)
@@ -65,10 +66,16 @@ function App() {
       .then(({ data }) => {
         const pages = (data ?? []).map((row) => row.page).filter(Boolean) as unknown as Page[]
         setClientPages(pages)
-        setActivePageId(pages.length === 1 ? pages[0].id : null)
+        const remembered = loadPersisted<string | null>('client_activePageId', null)
+        const stillValid = remembered && pages.some((p) => p.id === remembered)
+        setActivePageId(pages.length === 1 ? pages[0].id : stillValid ? remembered : null)
         setClientPagesLoading(false)
       })
   }, [profile])
+
+  useEffect(() => {
+    if (activePageId) savePersisted('client_activePageId', activePageId)
+  }, [activePageId])
 
   if (authLoading || profileLoading) return null
   if (!session) return <Login />
@@ -113,7 +120,14 @@ function App() {
     return (
       <ClientPortal
         pageId={activePageId}
-        onSwitchCompany={clientPages.length > 1 ? () => setActivePageId(null) : undefined}
+        onSwitchCompany={
+          clientPages.length > 1
+            ? () => {
+                savePersisted('client_activePageId', null)
+                setActivePageId(null)
+              }
+            : undefined
+        }
       />
     )
   }

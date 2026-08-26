@@ -5,6 +5,7 @@ import { EDITORIAL_STATUS_LABELS } from '../types'
 import type { EditorialPlanItem, Page } from '../types'
 import { addMonths, getMonthStart, isInMonth, monthLabel } from '../lib/date'
 import { errorMessage, useToast } from '../lib/toast'
+import { loadPersisted, savePersisted } from '../lib/persist'
 
 interface Props {
   pageId: string
@@ -168,7 +169,14 @@ function ApprovalAndNote({ item, onSaved }: { item: EditorialPlanItem; onSaved: 
 export function ClientEditorialPlan({ pageId, page }: Props) {
   const [items, setItems] = useState<EditorialPlanItem[]>([])
   const [loading, setLoading] = useState(true)
-  const [monthStart, setMonthStart] = useState(() => getMonthStart(new Date()))
+  const [monthStart, setMonthStart] = useState(() => {
+    const saved = loadPersisted<string | null>('client_monthStart', null)
+    return saved ? new Date(saved) : getMonthStart(new Date())
+  })
+
+  useEffect(() => {
+    savePersisted('client_monthStart', monthStart.toISOString())
+  }, [monthStart])
 
   async function loadItems() {
     const { data } = await supabase
