@@ -56,13 +56,13 @@ export function ClientReports({ pageId }: Props) {
           <li
             key={report.id}
             className={`space-y-3 rounded-2xl border bg-white p-5 shadow-sm ${
-              report.kind === 'organic' ? 'border-2 border-indigo-300' : 'border-neutral-200'
+              report.kind === 'organic' ? 'border-2 border-brand-300' : 'border-neutral-200'
             }`}
           >
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div>
                 {report.kind === 'organic' && (
-                  <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-indigo-600">
+                  <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-brand-600">
                     📈 Crescita organica
                   </p>
                 )}

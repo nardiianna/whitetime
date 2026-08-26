@@ -100,14 +100,14 @@ export function ReportsManager({ pageId }: Props) {
               onClick={() => openEdit(report)}
               className={`cursor-pointer space-y-3 rounded-xl border p-4 transition-colors hover:bg-neutral-100/40 ${
                 report.kind === 'organic'
-                  ? 'border-2 border-indigo-300 hover:border-indigo-400'
+                  ? 'border-2 border-brand-300 hover:border-brand-400'
                   : 'border-neutral-200 hover:border-neutral-400'
               }`}
             >
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div>
                   {report.kind === 'organic' && (
-                    <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-indigo-600">
+                    <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-brand-600">
                       📈 Crescita organica
                     </p>
                   )}

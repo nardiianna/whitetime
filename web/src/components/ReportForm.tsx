@@ -145,7 +145,7 @@ export function ReportForm({ pageId, report, onSaved, onCancel, onDelete }: Prop
             onClick={() => setKind('organic')}
             className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
               kind === 'organic'
-                ? 'border-indigo-600 bg-indigo-600 text-white'
+                ? 'border-brand-600 bg-brand-600 text-white'
                 : 'border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-100'
             }`}
           >
