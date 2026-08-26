@@ -1,6 +1,7 @@
 import { LogOut } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import type { Page } from '../types'
+import logo from '../assets/logo.png'
 
 interface Props {
   pages: Page[]
@@ -10,7 +11,7 @@ interface Props {
 export function ClientCompanyPicker({ pages, onSelect }: Props) {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-7 bg-neutral-50 px-4">
-      <span className="text-sm font-extrabold tracking-tight text-neutral-400">WHITETIME</span>
+      <img src={logo} alt="WhiteTime" className="h-7 w-auto" />
       <p className="text-sm text-neutral-600">Seleziona l'azienda da visualizzare</p>
       <div className="flex flex-wrap justify-center gap-3">
         {pages.map((page) => {

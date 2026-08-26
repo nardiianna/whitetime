@@ -5,6 +5,7 @@ import type { Page } from '../types'
 import { ClientEditorialPlan } from './ClientEditorialPlan'
 import { ClientReports } from './ClientReports'
 import { loadPersisted, savePersisted } from '../lib/persist'
+import logo from '../assets/logo.png'
 
 interface Props {
   pageId: string
@@ -34,7 +35,7 @@ export function ClientPortal({ pageId, onSwitchCompany }: Props) {
     <div className="min-h-screen bg-neutral-50">
       <div className="mx-auto max-w-3xl px-4 py-8">
         <div className="mb-8 flex items-center justify-between">
-          <span className="text-sm font-extrabold tracking-tight text-neutral-400">WHITETIME</span>
+          <img src={logo} alt="WhiteTime" className="h-6 w-auto" />
           <div className="flex items-center gap-5">
             {onSwitchCompany && (
               <button
