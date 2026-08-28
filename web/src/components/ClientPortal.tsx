@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
-import { ArrowLeftRight, BarChart3, Download, FileText, LogOut } from 'lucide-react'
+import { ArrowLeftRight, BarChart3, Download, FileText, Grid3x3, LogOut } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import type { Page } from '../types'
 import { ClientEditorialPlan } from './ClientEditorialPlan'
 import { ClientReports } from './ClientReports'
 import { ClientDownloads } from './ClientDownloads'
+import { ClientFeed } from './ClientFeed'
 import { loadPersisted, savePersisted } from '../lib/persist'
 import logo from '../assets/logo.png'
 
@@ -15,7 +16,7 @@ interface Props {
 
 export function ClientPortal({ pageId, onSwitchCompany }: Props) {
   const [page, setPage] = useState<Page | null>(null)
-  const [tab, setTab] = useState<'ped' | 'report' | 'download'>(() => loadPersisted('client_tab', 'ped'))
+  const [tab, setTab] = useState<'ped' | 'report' | 'download' | 'feed'>(() => loadPersisted('client_tab', 'ped'))
 
   useEffect(() => {
     savePersisted('client_tab', tab)
@@ -101,6 +102,15 @@ export function ClientPortal({ pageId, onSwitchCompany }: Props) {
             <Download className="h-4 w-4" />
             Download
           </button>
+          <button
+            onClick={() => setTab('feed')}
+            className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+              tab === 'feed' ? 'bg-neutral-900 text-white shadow-sm' : 'text-neutral-600 hover:bg-neutral-200'
+            }`}
+          >
+            <Grid3x3 className="h-4 w-4" />
+            Feed
+          </button>
         </div>
 
         {page &&
@@ -108,8 +118,10 @@ export function ClientPortal({ pageId, onSwitchCompany }: Props) {
             <ClientEditorialPlan pageId={pageId} page={page} />
           ) : tab === 'report' ? (
             <ClientReports pageId={pageId} />
-          ) : (
+          ) : tab === 'download' ? (
             <ClientDownloads pageId={pageId} />
+          ) : (
+            <ClientFeed pageId={pageId} />
           ))}
       </div>
     </div>

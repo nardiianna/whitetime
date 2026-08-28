@@ -126,3 +126,10 @@ export interface ClientDownload {
   file_name: string
   created_at: string
 }
+
+export interface ClientFeedPhoto {
+  id: string
+  page_id: string
+  file_path: string
+  created_at: string
+}
