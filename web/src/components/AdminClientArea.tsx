@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
-import { BarChart3, FileText } from 'lucide-react'
+import { BarChart3, Download, FileText } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import type { Page } from '../types'
 import { EditorialPlanManager } from './EditorialPlanManager'
 import { ReportsManager } from './ReportsManager'
+import { DownloadsManager } from './DownloadsManager'
 import { loadPersisted, savePersisted } from '../lib/persist'
 import type { PostPromotionDraft } from '../types'
 
@@ -15,7 +16,7 @@ interface Props {
 export function AdminClientArea({ onPromote, onPendingCountChange }: Props) {
   const [pages, setPages] = useState<Page[]>([])
   const [selectedPageId, setSelectedPageId] = useState<string>(() => loadPersisted('clientArea_pageId', ''))
-  const [tab, setTab] = useState<'ped' | 'dashboard'>(() => loadPersisted('clientArea_tab', 'ped'))
+  const [tab, setTab] = useState<'ped' | 'dashboard' | 'download'>(() => loadPersisted('clientArea_tab', 'ped'))
   const [pendingByPage, setPendingByPage] = useState<Record<string, number>>({})
 
   useEffect(() => savePersisted('clientArea_pageId', selectedPageId), [selectedPageId])
@@ -121,6 +122,17 @@ export function AdminClientArea({ onPromote, onPendingCountChange }: Props) {
               <BarChart3 className="h-4 w-4" />
               Dashboard campagne
             </button>
+            <button
+              onClick={() => setTab('download')}
+              className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+                tab === 'download'
+                  ? 'bg-neutral-900 text-white shadow-sm '
+                  : 'text-neutral-600 hover:bg-neutral-100'
+              }`}
+            >
+              <Download className="h-4 w-4" />
+              Download
+            </button>
           </div>
 
           {tab === 'ped' ? (
@@ -129,8 +141,10 @@ export function AdminClientArea({ onPromote, onPendingCountChange }: Props) {
               onPromote={onPromote}
               onNoteAcknowledged={() => handleNoteAcknowledged(selectedPageId)}
             />
-          ) : (
+          ) : tab === 'dashboard' ? (
             <ReportsManager pageId={selectedPageId} />
+          ) : (
+            <DownloadsManager pageId={selectedPageId} />
           )}
         </>
       )}

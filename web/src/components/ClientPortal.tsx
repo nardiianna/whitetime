@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
-import { ArrowLeftRight, BarChart3, FileText, LogOut } from 'lucide-react'
+import { ArrowLeftRight, BarChart3, Download, FileText, LogOut } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import type { Page } from '../types'
 import { ClientEditorialPlan } from './ClientEditorialPlan'
 import { ClientReports } from './ClientReports'
+import { ClientDownloads } from './ClientDownloads'
 import { loadPersisted, savePersisted } from '../lib/persist'
 import logo from '../assets/logo.png'
 
@@ -14,7 +15,7 @@ interface Props {
 
 export function ClientPortal({ pageId, onSwitchCompany }: Props) {
   const [page, setPage] = useState<Page | null>(null)
-  const [tab, setTab] = useState<'ped' | 'report'>(() => loadPersisted('client_tab', 'ped'))
+  const [tab, setTab] = useState<'ped' | 'report' | 'download'>(() => loadPersisted('client_tab', 'ped'))
 
   useEffect(() => {
     savePersisted('client_tab', tab)
@@ -91,9 +92,25 @@ export function ClientPortal({ pageId, onSwitchCompany }: Props) {
             <BarChart3 className="h-4 w-4" />
             Dashboard campagne
           </button>
+          <button
+            onClick={() => setTab('download')}
+            className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+              tab === 'download' ? 'bg-neutral-900 text-white shadow-sm' : 'text-neutral-600 hover:bg-neutral-200'
+            }`}
+          >
+            <Download className="h-4 w-4" />
+            Download
+          </button>
         </div>
 
-        {page && (tab === 'ped' ? <ClientEditorialPlan pageId={pageId} page={page} /> : <ClientReports pageId={pageId} />)}
+        {page &&
+          (tab === 'ped' ? (
+            <ClientEditorialPlan pageId={pageId} page={page} />
+          ) : tab === 'report' ? (
+            <ClientReports pageId={pageId} />
+          ) : (
+            <ClientDownloads pageId={pageId} />
+          ))}
       </div>
     </div>
   )

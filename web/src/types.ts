@@ -118,3 +118,11 @@ export interface AdReport {
   created_at: string
   updated_at: string
 }
+
+export interface ClientDownload {
+  id: string
+  page_id: string
+  file_path: string
+  file_name: string
+  created_at: string
+}
