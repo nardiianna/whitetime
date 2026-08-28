@@ -98,7 +98,7 @@ export function FeedManager({ pageId }: Props) {
           {photos.map((photo) => {
             const url = supabase.storage.from('feed').getPublicUrl(photo.file_path).data.publicUrl
             return (
-              <div key={photo.id} className="group relative aspect-square">
+              <div key={photo.id} className="group relative aspect-[4/5]">
                 <img src={url} alt="" className="h-full w-full object-cover" />
                 <button
                   onClick={() => handleDelete(photo)}

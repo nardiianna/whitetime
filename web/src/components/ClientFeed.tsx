@@ -26,7 +26,7 @@ export function ClientFeed({ pageId }: Props) {
     return (
       <div className="grid grid-cols-3 gap-0.5">
         {Array.from({ length: 9 }).map((_, i) => (
-          <div key={i} className="aspect-square animate-pulse bg-neutral-100" />
+          <div key={i} className="aspect-[4/5] animate-pulse bg-neutral-100" />
         ))}
       </div>
     )
@@ -40,7 +40,7 @@ export function ClientFeed({ pageId }: Props) {
     <div className="grid grid-cols-3 gap-0.5 overflow-hidden rounded-2xl border border-neutral-200 bg-white p-0.5 shadow-sm">
       {photos.map((photo) => {
         const url = supabase.storage.from('feed').getPublicUrl(photo.file_path).data.publicUrl
-        return <img key={photo.id} src={url} alt="" className="aspect-square w-full object-cover" />
+        return <img key={photo.id} src={url} alt="" className="aspect-[4/5] w-full object-cover" />
       })}
     </div>
   )
