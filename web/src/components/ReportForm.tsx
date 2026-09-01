@@ -30,7 +30,11 @@ const INPUT =
 const LABEL = 'text-sm font-medium text-neutral-700'
 
 function toNumber(value: string): number | null {
-  return value.trim() === '' ? null : Number(value)
+  const trimmed = value.trim()
+  if (trimmed === '') return null
+  const num = Number(trimmed.replace(',', '.'))
+  if (Number.isNaN(num)) throw new Error(`Valore numerico non valido: "${value}"`)
+  return num
 }
 
 export function ReportForm({ pageId, report, onSaved, onCancel, onDelete }: Props) {
@@ -81,11 +85,13 @@ export function ReportForm({ pageId, report, onSaved, onCancel, onDelete }: Prop
     setError(null)
     try {
       let screenshotPath = existingPath
+      let uploadedPath: string | null = null
       if (newFile) {
         const path = `${pageId}/${crypto.randomUUID()}-${sanitizeFileName(newFile.name)}`
         const { error: uploadError } = await supabase.storage.from('reports').upload(path, newFile)
         if (uploadError) throw uploadError
         screenshotPath = path
+        uploadedPath = path
       }
 
       const customMetrics: CustomMetric[] = metrics
@@ -108,7 +114,10 @@ export function ReportForm({ pageId, report, onSaved, onCancel, onDelete }: Prop
       const { error: saveError } = report
         ? await supabase.from('ad_reports').update(payload).eq('id', report.id)
         : await supabase.from('ad_reports').insert(payload)
-      if (saveError) throw saveError
+      if (saveError) {
+        if (uploadedPath) await supabase.storage.from('reports').remove([uploadedPath])
+        throw saveError
+      }
 
       if (removedPath) {
         const { error: removeError } = await supabase.storage.from('reports').remove([removedPath])

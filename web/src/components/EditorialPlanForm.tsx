@@ -85,7 +85,10 @@ export function EditorialPlanForm({ pageId, item, onSaved, onCancel, onDelete }:
       const { error: saveError } = item
         ? await supabase.from('editorial_plan_items').update(payload).eq('id', item.id)
         : await supabase.from('editorial_plan_items').insert(payload)
-      if (saveError) throw saveError
+      if (saveError) {
+        if (uploadedPaths.length > 0) await supabase.storage.from('media').remove(uploadedPaths)
+        throw saveError
+      }
 
       if (removedImagePaths.length > 0) {
         const { error: removeError } = await supabase.storage.from('media').remove(removedImagePaths)

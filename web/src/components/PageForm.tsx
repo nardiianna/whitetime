@@ -41,11 +41,13 @@ export function PageForm({ page, onSaved, onCancel, onDelete }: Props) {
     setError(null)
     try {
       let avatarPath = existingAvatarPath
+      let uploadedPath: string | null = null
       if (newAvatarFile) {
         const path = `${page?.id ?? 'new'}/avatar-${crypto.randomUUID()}-${sanitizeFileName(newAvatarFile.name)}`
         const { error: uploadError } = await supabase.storage.from('media').upload(path, newAvatarFile)
         if (uploadError) throw uploadError
         avatarPath = path
+        uploadedPath = path
       }
 
       const payload = {
@@ -57,7 +59,10 @@ export function PageForm({ page, onSaved, onCancel, onDelete }: Props) {
       const { error: saveError } = page
         ? await supabase.from('pages').update(payload).eq('id', page.id)
         : await supabase.from('pages').insert(payload)
-      if (saveError) throw saveError
+      if (saveError) {
+        if (uploadedPath) await supabase.storage.from('media').remove([uploadedPath])
+        throw saveError
+      }
 
       if (removedAvatarPath) {
         const { error: removeError } = await supabase.storage.from('media').remove([removedAvatarPath])

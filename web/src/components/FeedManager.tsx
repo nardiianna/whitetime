@@ -42,7 +42,10 @@ export function FeedManager({ pageId }: Props) {
         const { error: insertError } = await supabase
           .from('client_feed_photos')
           .insert({ page_id: pageId, file_path: path })
-        if (insertError) throw insertError
+        if (insertError) {
+          await supabase.storage.from('feed').remove([path])
+          throw insertError
+        }
       }
       await loadPhotos()
     } catch (err) {

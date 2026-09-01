@@ -117,7 +117,10 @@ export function PostForm({
         ? await supabase.from('posts').update(payload).eq('id', post.id)
         : await supabase.from('posts').insert(payload)
 
-      if (saveError) throw saveError
+      if (saveError) {
+        if (uploadedPaths.length > 0) await supabase.storage.from('media').remove(uploadedPaths)
+        throw saveError
+      }
 
       if (removedPaths.length > 0) {
         const { error: removeError } = await supabase.storage.from('media').remove(removedPaths)

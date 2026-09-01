@@ -42,7 +42,10 @@ export function DownloadsManager({ pageId }: Props) {
         const { error: insertError } = await supabase
           .from('client_downloads')
           .insert({ page_id: pageId, file_path: path, file_name: file.name })
-        if (insertError) throw insertError
+        if (insertError) {
+          await supabase.storage.from('downloads').remove([path])
+          throw insertError
+        }
       }
       await loadFiles()
     } catch (err) {
